@@ -2,6 +2,7 @@ package io.github.seanieStack.util;
 
 import io.github.seanieStack.parser.RJScriptLexer;
 import io.github.seanieStack.parser.RJScriptParser;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -19,7 +20,7 @@ public class PrintAST {
     }
 
     private String treeString(ParseTree node, String prefix) {
-        if(node instanceof RJScriptParser.PrimaryExprContext && node.getChildCount() == 1) return visitPrimary((RJScriptParser.PrimaryExprContext) node);
+        if(node instanceof RJScriptParser.PrimaryContext && node.getChildCount() == 1) return visitPrimary((RJScriptParser.PrimaryContext) node);
         if(node instanceof TerminalNode) return visitTerminal((TerminalNode) node);
         if(!(node instanceof RuleNode)) return "";
 
@@ -44,16 +45,15 @@ public class PrintAST {
         return sb.toString();
     }
 
-    private String visitPrimary(RJScriptParser.PrimaryExprContext node) {
+    private String visitPrimary(RJScriptParser.PrimaryContext node) {
         String name = RJScriptParser.ruleNames[node.getRuleContext().getRuleIndex()];
         String childString = visitTerminal((TerminalNode) node.getChild(0));
         return name + " ── " + childString;
     }
 
     private String visitTerminal(TerminalNode node) {
-        char id = RJScriptLexer.ruleNames[node.getSymbol().getType() - 1].contains("T__") ?
-                'P'
-                : RJScriptLexer.ruleNames[node.getSymbol().getType() - 1].charAt(0);
+        if(node.getSymbol().getType() == Token.EOF)  return "EOF";
+        String id = RJScriptLexer.ruleNames[node.getSymbol().getType() - 1];
 
         return id + "'" + node.getText() + "'";
     }

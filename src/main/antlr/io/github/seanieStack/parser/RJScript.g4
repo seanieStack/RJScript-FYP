@@ -4,17 +4,20 @@ grammar RJScript;
     package io.github.seanieStack.parser;
 }
 
-//sample grammar taken from https://www.youtube.com/watch?v=FCfiCPIeE2Y used to setup antlr
+program : expression EOF ;
 
-fileStat : expr;
+expression : additive ;
 
-expr : additiveExpr ;
+additive : primary ((PLUS | MINUS) primary)*;
 
-additiveExpr : additiveExpr ('+' | '-' ) primaryExpr
-             | primaryExpr
-             ;
+primary : INT
+        | LPAREN expression RPAREN
+        ;
 
-primaryExpr : NUM ;
-
-NUM: [0-9]+ ;
-SPACES : [ \t] -> skip;
+//lexer rules
+PLUS   : '+' ;
+MINUS  : '-' ;
+LPAREN : '(' ;
+RPAREN : ')' ;
+INT    : [0-9]+ ;
+WS     : [ \t]+ -> skip ;

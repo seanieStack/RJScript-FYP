@@ -9,14 +9,14 @@ public class RJScript {
     public static void main(String[] args) {
 
         // REF: https://www.youtube.com/watch?v=FCfiCPIeE2Y
-        String input = "5838 + 44 - 3";
+        String input = "67 + (85 - 5) + 10";
         CodePointCharStream inputStream = CharStreams.fromString(input);
 
         RJScriptLexer lexer = new RJScriptLexer(inputStream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
 
         RJScriptParser parser = new RJScriptParser(tokens);
-        RJScriptParser.FileStatContext parseTree = parser.fileStat();
+        RJScriptParser.ProgramContext parseTree = parser.program();
 
         System.out.println(new PrintAST(parseTree));
     }
