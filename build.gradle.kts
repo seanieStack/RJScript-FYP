@@ -22,6 +22,14 @@ tasks.test {
     useJUnitPlatform()
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs("build/generated-src/antlr/main")
+        }
+    }
+}
+
 tasks {
 
     generateGrammarSource {
