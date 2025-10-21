@@ -4,7 +4,9 @@ grammar RJScript;
     package io.github.seanieStack.parser;
 }
 
-program : expression EOF ;
+program : statement+ EOF ;
+
+statement : expression SEMICOLON ;
 
 expression : additive ;
 
@@ -15,9 +17,10 @@ primary : INT
         ;
 
 //lexer rules
-PLUS   : '+' ;
-MINUS  : '-' ;
-LPAREN : '(' ;
-RPAREN : ')' ;
-INT    : [0-9]+ ;
-WS     : [ \t]+ -> skip ;
+PLUS      : '+' ;
+MINUS     : '-' ;
+LPAREN    : '(' ;
+RPAREN    : ')' ;
+SEMICOLON : ';' ;
+INT       : [0-9]+ ;
+WS        : [ \t\r\n]+ -> skip ;
