@@ -10,7 +10,13 @@ statement : expression SEMICOLON ;
 
 expression : additive ;
 
-additive : primary ((PLUS | MINUS) primary)*;
+additive : multiplicative ((PLUS | MINUS) multiplicative)*;
+
+multiplicative: unary ((MULTIPLY | DIVISION) unary)*;
+
+unary : MINUS unary
+      | primary
+      ;
 
 primary : INT
         | LPAREN expression RPAREN
@@ -19,6 +25,8 @@ primary : INT
 //lexer rules
 PLUS      : '+' ;
 MINUS     : '-' ;
+MULTIPLY  : '*' ;
+DIVISION  : '/' ;
 LPAREN    : '(' ;
 RPAREN    : ')' ;
 SEMICOLON : ';' ;

@@ -23,7 +23,7 @@ public class RJScript {
 
                 inputStream = CharStreams.fromFileName(filePath);
             } else {
-                String input = "67 + (85 - 5) + 10;";
+                String input = "(67 + (85 - 5) + 10 + (-10 * 2)) / 2;";
                 inputStream = CharStreams.fromString(input);
             }
 

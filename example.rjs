@@ -1,4 +1,32 @@
+//basic arithmetic operations
 10 + 5;
 20 - 3;
+8 * 4;
+100 / 5;
+
+//operations with parentheses
 (100 + 50) - 25;
 5 + (10 - 2) + 8;
+(10 + 20) * 3;
+(100 - 20) / 4;
+
+//complex expressions with precedence
+10 + 5 * 2;
+100 - 20 / 4;
+2 + 3 * 4 - 1;
+
+//nested parentheses
+((10 + 5) * 2) - 3;
+(67 + (85 - 5) + 10) / 2;
+((100 / 5) + (20 * 2)) - 10;
+
+//unary minus
+-10;
+-5 + 10;
+-(10 + 5);
+-10 * 2;
+-(10 * 2);
+
+//all features
+(67 + (85 - 5) + 10 + (-10 * 2)) / 2;
+-((10 + 20) * 3 - 50) + 100;

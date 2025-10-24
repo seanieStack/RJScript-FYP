@@ -28,20 +28,45 @@ public class Interpreter extends RJScriptBaseVisitor<Integer> {
 
     @Override
     public Integer visitAdditive(RJScriptParser.AdditiveContext ctx) {
-        Integer result = visit(ctx.primary(0));
+        Integer result = visit(ctx.multiplicative(0));
 
-        for (int i = 0; i < ctx.primary().size() - 1; i++) {
+        for(int i = 0; i < ctx.multiplicative().size() - 1; i++){
             String operator = ctx.getChild(2 * i + 1).getText();
-            Integer right = visit(ctx.primary(i + 1));
+            int right = visit(ctx.multiplicative(i + 1));
 
-            if (operator.equals("+")) {
+            if(operator.equals("+")){
                 result = result + right;
-            } else if (operator.equals("-")) {
+            }
+            else if(operator.equals("-")){
                 result = result - right;
             }
         }
-
         return result;
+    }
+
+    public Integer visitMultiplicative(RJScriptParser.MultiplicativeContext ctx) {
+        Integer result = visit(ctx.unary(0));
+
+        for(int i = 0; i < ctx.unary().size() - 1; i++){
+            String operator = ctx.getChild(2 * i + 1).getText();
+            int right = visit(ctx.unary(i + 1));
+
+            if(operator.equals("*")){
+                result = result * right;
+            }
+            else if(operator.equals("/")){
+                result = result / right;
+            }
+        }
+        return result;
+    }
+
+    public Integer visitUnary(RJScriptParser.UnaryContext ctx) {
+        if (ctx.MINUS() != null) {
+            return -(visit(ctx.unary()));
+        }else {
+            return visit(ctx.primary());
+        }
     }
 
     @Override
