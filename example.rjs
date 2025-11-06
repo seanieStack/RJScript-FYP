@@ -50,3 +50,79 @@ print(result);
 print(x + y + z);
 print((x * y) - z);
 
+//boolean literals
+let isTrue = true;
+let isFalse = false;
+print(isTrue);
+print(isFalse);
+
+//comparison operators
+print(10 > 5);
+print(10 < 5);
+print(10 >= 10);
+print(10 <= 9);
+print(10 == 10);
+print(10 != 5);
+
+//comparison with variables
+print(x > y);
+print(x < y);
+print(x == 10);
+print(y != 15);
+
+//if statements
+if (x > 5) {
+    print(100)
+}
+
+if (y < 10) {
+    print(200)
+}
+
+//if-else statements
+if (x > 20) {
+    print(300)
+} else {
+    print(400)
+}
+
+//if-else if-else chains
+if (x > 50) {
+    print(500)
+} else if (x > 20) {
+    print(600)
+} else if (x > 5) {
+    print(700)
+} else {
+    print(800)
+}
+
+//variable scoping with blocks
+let outer = 1;
+print(outer);
+
+if (true) {
+    let inner = 2;
+    print(inner);
+    let outer = 3;
+    print(outer)
+}
+
+print(outer);
+
+//nested if statements with scoping
+let a = 10;
+if (a > 5) {
+    let b = 20;
+    print(b);
+
+    if (b > 15) {
+        let c = 30;
+        print(c);
+        print(a + b + c)
+    }
+
+    print(a + b)
+}
+print(a);
+

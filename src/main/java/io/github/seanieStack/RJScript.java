@@ -1,9 +1,12 @@
 package io.github.seanieStack;
 
-import io.github.seanieStack.interpreter.Interpreter;
+import io.github.seanieStack.ast.ASTBuilder;
+import io.github.seanieStack.ast.ASTNode;
+import io.github.seanieStack.ast.ProgramNode;
+import io.github.seanieStack.interpreter.ASTInterpreter;
 import io.github.seanieStack.parser.RJScriptLexer;
 import io.github.seanieStack.parser.RJScriptParser;
-import io.github.seanieStack.util.PrintAST;
+import io.github.seanieStack.util.ASTPrinter;
 import org.antlr.v4.runtime.*;
 
 import java.io.BufferedReader;
@@ -26,19 +29,28 @@ public class RJScript {
                 System.exit(1);
             }
 
+            //lexer
             CharStream inputStream = CharStreams.fromFileName(filePath);
             RJScriptLexer lexer = new RJScriptLexer(inputStream);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
 
+            //parser
             RJScriptParser parser = new RJScriptParser(tokens);
             RJScriptParser.ProgramContext parseTree = parser.program();
 
-            System.out.println("AST:");
-            System.out.println(new PrintAST(parseTree));
-            System.out.println("\nOutput:");
+            //to ast
+            ASTBuilder astBuilder = new ASTBuilder();
+            ASTNode ast = astBuilder.visit(parseTree);
 
-            Interpreter interpreter = new Interpreter();
-            interpreter.visit(parseTree);
+            //print ast
+            System.out.println("AST:");
+            ASTPrinter astPrinter = new ASTPrinter();
+            System.out.println(astPrinter.visit((ProgramNode) ast));
+            System.out.println("Output:");
+
+            //interpreter
+            ASTInterpreter interpreter = new ASTInterpreter();
+            ast.accept(interpreter);
 
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
@@ -51,10 +63,11 @@ public class RJScript {
         System.out.println("Type 'exit' to quit");
         System.out.println();
 
-        Interpreter interpreter = new Interpreter();
+        ASTInterpreter interpreter = new ASTInterpreter();
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder multiLineInput = new StringBuilder();
 
+        //keep looping till exit
         while (true) {
             try {
                 if (multiLineInput.isEmpty()) {
@@ -94,7 +107,10 @@ public class RJScript {
                         RJScriptParser.ProgramContext parseTree = parser.program();
 
                         if (parser.getNumberOfSyntaxErrors() == 0) {
-                            interpreter.visit(parseTree);
+                            ASTBuilder astBuilder = new ASTBuilder();
+                            ASTNode ast = astBuilder.visit(parseTree);
+
+                            ast.accept(interpreter);
                         } else {
                             System.err.println("Syntax error in input");
                         }
