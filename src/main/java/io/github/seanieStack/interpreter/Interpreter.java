@@ -2,8 +2,12 @@ package io.github.seanieStack.interpreter;
 
 import io.github.seanieStack.parser.RJScriptBaseVisitor;
 import io.github.seanieStack.parser.RJScriptParser;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Interpreter extends RJScriptBaseVisitor<Integer> {
+
+    private final Map<String, Integer> variables = new HashMap<>();
 
     @Override
     public Integer visitProgram(RJScriptParser.ProgramContext ctx) {
@@ -15,10 +19,23 @@ public class Interpreter extends RJScriptBaseVisitor<Integer> {
     }
 
     @Override
-    public Integer visitStatement(RJScriptParser.StatementContext ctx) {
-        Integer result = visit(ctx.expression());
-        System.out.println(result);
-        return result;
+    public Integer visitVarDeclaration(RJScriptParser.VarDeclarationContext ctx) {
+        String varName = ctx.IDENTIFIER().getText();
+        Integer value = visit(ctx.expression());
+        variables.put(varName, value);
+        return value;
+    }
+
+    @Override
+    public Integer visitPrintStatement(RJScriptParser.PrintStatementContext ctx) {
+        Integer value = visit(ctx.expression());
+        System.out.println(value);
+        return value;
+    }
+
+    @Override
+    public Integer visitExpressionStatement(RJScriptParser.ExpressionStatementContext ctx) {
+        return visit(ctx.expression());
     }
 
     @Override
@@ -73,6 +90,13 @@ public class Interpreter extends RJScriptBaseVisitor<Integer> {
     public Integer visitPrimary(RJScriptParser.PrimaryContext ctx) {
         if (ctx.INT() != null) {
             return Integer.parseInt(ctx.INT().getText());
+        } else if (ctx.IDENTIFIER() != null) {
+            String varName = ctx.IDENTIFIER().getText();
+            if (variables.containsKey(varName)) {
+                return variables.get(varName);
+            } else {
+                throw new RuntimeException("Undefined variable: " + varName);
+            }
         } else if (ctx.expression() != null) {
             return visit(ctx.expression());
         }

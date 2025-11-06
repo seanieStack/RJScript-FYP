@@ -1,32 +1,52 @@
-//basic arithmetic operations
-10 + 5;
-20 - 3;
-8 * 4;
-100 / 5;
+//basic arithmetic operations (expression statements)
+print(10 + 5);
+print(20 - 3);
+print(8 * 4);
+print(100 / 5);
 
 //operations with parentheses
-(100 + 50) - 25;
-5 + (10 - 2) + 8;
-(10 + 20) * 3;
-(100 - 20) / 4;
+print((100 + 50) - 25);
+print(5 + (10 - 2) + 8);
+print((10 + 20) * 3);
+print((100 - 20) / 4);
 
 //complex expressions with precedence
-10 + 5 * 2;
-100 - 20 / 4;
-2 + 3 * 4 - 1;
+print(10 + 5 * 2);
+print(100 - 20 / 4);
+print(2 + 3 * 4 - 1);
 
 //nested parentheses
-((10 + 5) * 2) - 3;
-(67 + (85 - 5) + 10) / 2;
-((100 / 5) + (20 * 2)) - 10;
+print(((10 + 5) * 2) - 3);
+print((67 + (85 - 5) + 10) / 2);
+print(((100 / 5) + (20 * 2)) - 10);
 
 //unary minus
--10;
--5 + 10;
--(10 + 5);
--10 * 2;
--(10 * 2);
+print(-10);
+print(-5 + 10);
+print(-(10 + 5));
+print(-10 * 2);
+print(-(10 * 2));
 
-//all features
-(67 + (85 - 5) + 10 + (-10 * 2)) / 2;
--((10 + 20) * 3 - 50) + 100;
+//variable declarations with 'let'
+let x = 10;
+let y = 20;
+let z = x + y;
+
+//using variables in expressions
+print(x * 2);
+print(y - x);
+print(z / 3);
+
+//variables in complex expressions
+let result = (x + y) * 2;
+
+//print statements
+print(x);
+print(y);
+print(z);
+print(result);
+
+//print with expressions
+print(x + y + z);
+print((x * y) - z);
+
