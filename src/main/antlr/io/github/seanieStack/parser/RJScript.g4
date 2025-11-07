@@ -7,12 +7,15 @@ grammar RJScript;
 program : statement+ EOF ;
 
 statement : varDeclaration
+          | varAssignment
           | printStatement
           | ifStatement
           | expressionStatement
           ;
 
 varDeclaration : LET IDENTIFIER EQUALS expression SEMICOLON ;
+
+varAssignment : IDENTIFIER EQUALS expression SEMICOLON ;
 
 printStatement : PRINT LPAREN expression RPAREN SEMICOLON ;
 

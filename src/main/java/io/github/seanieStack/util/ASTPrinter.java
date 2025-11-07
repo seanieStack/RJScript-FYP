@@ -51,6 +51,16 @@ public class ASTPrinter implements ASTVisitor<String> {
     }
 
     @Override
+    public String visit(VarAssignmentNode node) {
+        return "varAssignment\n" +
+                "├── identifier: '" + node.identifier() + "'\n" +
+                formatChild(
+                        node.expression().accept(this),
+                        true
+                );
+    }
+
+    @Override
     public String visit(PrintStatementNode node) {
         return "printStatement\n" +
                 formatChild(

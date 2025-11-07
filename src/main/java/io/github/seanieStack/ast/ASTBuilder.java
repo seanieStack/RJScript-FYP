@@ -21,6 +21,14 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     }
 
     @Override
+    public ASTNode visitVarAssignment(RJScriptParser.VarAssignmentContext ctx){
+        return new VarAssignmentNode(
+                ctx.IDENTIFIER().getText(),
+                visit(ctx.expression())
+        );
+    }
+
+    @Override
     public ASTNode visitPrintStatement(RJScriptParser.PrintStatementContext ctx) {
         return new PrintStatementNode(visit(ctx.expression()));
     }

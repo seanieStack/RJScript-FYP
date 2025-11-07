@@ -24,6 +24,13 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     }
 
     @Override
+    public Object visit(VarAssignmentNode node){
+        Object value = node.expression().accept(this);
+        env.update(node.identifier(), value);
+        return value;
+    }
+
+    @Override
     public Object visit(PrintStatementNode node) {
         Object value = node.expression().accept(this);
         System.out.println(value);

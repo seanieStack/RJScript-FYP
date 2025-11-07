@@ -43,4 +43,16 @@ public class Environment {
             return false;
         }
     }
+
+    public void update(String variableName, Object value) {
+        if (variables.containsKey(variableName)){
+            variables.put(variableName, value);
+        }
+        else if (parent != null){
+            parent.update(variableName, value);
+        }
+        else {
+            throw new RuntimeException("Variable " + variableName + " not found");
+        }
+    }
 }
