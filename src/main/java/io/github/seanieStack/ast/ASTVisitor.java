@@ -8,11 +8,14 @@ public interface ASTVisitor<T> {
     T visit(IfStatementNode node);
     T visit(WhileStatementNode node);
     T visit(ForStatementNode node);
+    T visit(FunctionDeclarationNode node);
+    T visit(ReturnStatementNode node);
     T visit(BlockNode node);
     T visit(ExpressionStatementNode node);
 
     // Expressions
     T visit(BinaryOpNode node);
+    T visit(FunctionCallNode node);
     T visit(UnaryOpNode node);
     T visit(IntLiteralNode node);
     T visit(BoolLiteralNode node);
