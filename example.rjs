@@ -126,3 +126,64 @@ if (a > 5) {
 }
 print(a);
 
+//variable re-assignment
+let counter = 0;
+counter = 5;
+print(counter);
+counter = counter + 10;
+print(counter);
+
+//while loops
+let i = 0;
+while (i < 5) {
+    print(i);
+    i = i + 1;
+}
+
+//while loop with condition
+let num = 10;
+while (num > 5) {
+    print(num);
+    num = num - 1;
+}
+
+//for loops with let initialization
+for (let j = 0; j < 5; j = j + 1) {
+    print(j);
+}
+
+//for loops with existing variable
+let k = 0;
+for (k = 1; k < 4; k = k + 1) {
+    print(k);
+}
+
+//for loop with arithmetic
+for (let m = 0; m < 10; m = m + 2) {
+    print(m);
+}
+
+//nested loops
+for (let n = 0; n < 3; n = n + 1) {
+    let p = 0;
+    while (p < 2) {
+        print(n * 10 + p);
+        p = p + 1;
+    }
+}
+
+//loop with scoping
+let outer_var = 100;
+for (let loop_var = 0; loop_var < 3; loop_var = loop_var + 1) {
+    let inner_var = loop_var + outer_var;
+    print(inner_var);
+}
+
+//while loop with complex condition
+let val1 = 0;
+let val2 = 10;
+while (val1 < val2) {
+    print(val1);
+    val1 = val1 + 2;
+}
+

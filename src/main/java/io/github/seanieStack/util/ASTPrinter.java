@@ -70,6 +70,68 @@ public class ASTPrinter implements ASTVisitor<String> {
     }
 
     @Override
+    public String visit(WhileStatementNode node) {
+        return "whileStatement\n" +
+                formatChild(
+                        "condition\n" +
+                        formatChild(
+                                node.condition().accept(this),
+                                true
+                        ),
+                        false
+                ) +
+                "\n" +
+                formatChild(
+                        "body\n" +
+                        formatChild(
+                                node.body().accept(this),
+                                true
+                        ),
+                        true
+                );
+    }
+
+    @Override
+    public String visit(ForStatementNode node) {
+        return "forStatement\n" +
+                formatChild(
+                        "initialization\n" +
+                        formatChild(
+                                node.initialization().accept(this),
+                                true
+                        ),
+                        false
+                ) +
+                "\n" +
+                formatChild(
+                        "condition\n" +
+                        formatChild(
+                                node.condition().accept(this),
+                                true
+                        ),
+                        false
+                ) +
+                "\n" +
+                formatChild(
+                        "update\n" +
+                        formatChild(
+                                node.update().accept(this),
+                                true
+                        ),
+                        false
+                ) +
+                "\n" +
+                formatChild(
+                        "body\n" +
+                        formatChild(
+                                node.body().accept(this),
+                                true
+                        ),
+                        true
+                );
+    }
+
+    @Override
     public String visit(IfStatementNode node) {
         StringBuilder sb = new StringBuilder("ifStatement");
 

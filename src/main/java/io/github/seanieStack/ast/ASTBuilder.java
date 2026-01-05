@@ -70,6 +70,45 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     }
 
     @Override
+    public ASTNode visitWhileStatement(RJScriptParser.WhileStatementContext ctx) {
+        ASTNode condition = visit(ctx.expression());
+        BlockNode body = (BlockNode) visit(ctx.block());
+        return new WhileStatementNode(condition, body);
+    }
+
+    @Override
+    public ASTNode visitForStatement(RJScriptParser.ForStatementContext ctx) {
+        ASTNode initialization = visit(ctx.forInit());
+        ASTNode condition = visit(ctx.expression());
+        ASTNode update = visit(ctx.forUpdate());
+        BlockNode body = (BlockNode) visit(ctx.block());
+        return new ForStatementNode(initialization, condition, update, body);
+    }
+
+    @Override
+    public ASTNode visitForInit(RJScriptParser.ForInitContext ctx) {
+        if (ctx.LET() != null) {
+            return new VarDeclarationNode(
+                    ctx.IDENTIFIER().getText(),
+                    visit(ctx.expression())
+            );
+        } else {
+            return new VarAssignmentNode(
+                    ctx.IDENTIFIER().getText(),
+                    visit(ctx.expression())
+            );
+        }
+    }
+
+    @Override
+    public ASTNode visitForUpdate(RJScriptParser.ForUpdateContext ctx) {
+        return new VarAssignmentNode(
+                ctx.IDENTIFIER().getText(),
+                visit(ctx.expression())
+        );
+    }
+
+    @Override
     public ASTNode visitBlock(RJScriptParser.BlockContext ctx) {
         return new BlockNode(ctx.statement().stream().map(this::visit).toList());
     }
