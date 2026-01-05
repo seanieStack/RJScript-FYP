@@ -12,6 +12,8 @@ statement : varDeclaration
           | ifStatement
           | whileStatement
           | forStatement
+          | functionDeclaration
+          | returnStatement
           | expressionStatement
           ;
 
@@ -35,6 +37,12 @@ forInit : (LET IDENTIFIER EQUALS expression | IDENTIFIER EQUALS expression) SEMI
 
 forUpdate : IDENTIFIER EQUALS expression ;
 
+functionDeclaration : FUNCTION IDENTIFIER LPAREN parameterList? RPAREN block ;
+
+parameterList : IDENTIFIER (COMMA IDENTIFIER)* ;
+
+returnStatement : RETURN expression SEMICOLON ;
+
 block : LBRACE statement* RBRACE ;
 
 expressionStatement : expression SEMICOLON ;
@@ -53,9 +61,14 @@ unary : MINUS unary
 
 primary : INT
         | BOOLEAN
+        | functionCall
         | IDENTIFIER
         | LPAREN expression RPAREN
         ;
+
+functionCall : IDENTIFIER LPAREN argumentList? RPAREN ;
+
+argumentList : expression (COMMA expression)* ;
 
 //lexer rules
 LET       : 'let' ;
@@ -64,6 +77,8 @@ IF        : 'if' ;
 ELSE      : 'else' ;
 WHILE     : 'while' ;
 FOR       : 'for' ;
+FUNCTION  : 'function' ;
+RETURN    : 'return' ;
 EQUALS    : '=' ;
 EQ        : '==' ;
 NEQ       : '!=' ;
@@ -80,6 +95,7 @@ RPAREN    : ')' ;
 LBRACE    : '{' ;
 RBRACE    : '}' ;
 SEMICOLON : ';' ;
+COMMA     : ',' ;
 BOOLEAN   : 'true' | 'false' ;
 INT       : [0-9]+ ;
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]* ;
