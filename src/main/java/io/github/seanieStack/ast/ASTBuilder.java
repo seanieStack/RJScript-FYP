@@ -109,6 +109,27 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     }
 
     @Override
+    public ASTNode visitFunctionDeclaration(RJScriptParser.FunctionDeclarationContext ctx) {
+        String name = ctx.IDENTIFIER().getText();
+
+        List<String> parameters = new ArrayList<>();
+        if (ctx.parameterList() != null) {
+            for (var identifier : ctx.parameterList().IDENTIFIER()) {
+                parameters.add(identifier.getText());
+            }
+        }
+
+        BlockNode body = (BlockNode) visit(ctx.block());
+
+        return new FunctionDeclarationNode(name, parameters, body);
+    }
+
+    @Override
+    public ASTNode visitReturnStatement(RJScriptParser.ReturnStatementContext ctx) {
+        return new ReturnStatementNode(visit(ctx.expression()));
+    }
+
+    @Override
     public ASTNode visitBlock(RJScriptParser.BlockContext ctx) {
         return new BlockNode(ctx.statement().stream().map(this::visit).toList());
     }
@@ -204,11 +225,27 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
             return new IntLiteralNode(Integer.parseInt(ctx.INT().getText()));
         } else if (ctx.BOOLEAN() != null) {
             return new BoolLiteralNode(Boolean.parseBoolean(ctx.BOOLEAN().getText()));
+        } else if (ctx.functionCall() != null) {
+            return visit(ctx.functionCall());
         } else if (ctx.IDENTIFIER() != null) {
             return new VariableNode(ctx.IDENTIFIER().getText());
         } else if (ctx.expression() != null) {
             return visit(ctx.expression());
         }
         throw new RuntimeException("Unknown primary expression");
+    }
+
+    @Override
+    public ASTNode visitFunctionCall(RJScriptParser.FunctionCallContext ctx) {
+        String name = ctx.IDENTIFIER().getText();
+
+        List<ASTNode> arguments = new ArrayList<>();
+        if (ctx.argumentList() != null) {
+            for (var expr : ctx.argumentList().expression()) {
+                arguments.add(visit(expr));
+            }
+        }
+
+        return new FunctionCallNode(name, arguments);
     }
 }

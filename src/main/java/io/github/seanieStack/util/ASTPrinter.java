@@ -269,4 +269,58 @@ public class ASTPrinter implements ASTVisitor<String> {
     public String visit(VariableNode node) {
         return "variable: '" + node.name() + "'";
     }
+
+    @Override
+    public String visit(FunctionDeclarationNode node) {
+        StringBuilder sb = new StringBuilder("functionDeclaration");
+
+        // Function name
+        sb.append("\n").append(formatChild("name: '" + node.name() + "'", false));
+
+        // Parameters
+        if (node.parameters().isEmpty()) {
+            sb.append("\n").append(formatChild("parameters: []", false));
+        } else {
+            sb.append("\n").append(formatChild(
+                "parameters: [" + String.join(", ", node.parameters()) + "]",
+                false
+            ));
+        }
+
+        // Body
+        sb.append("\n").append(formatChild(
+            "body\n" + formatChild(node.body().accept(this), true),
+            true
+        ));
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(FunctionCallNode node) {
+        StringBuilder sb = new StringBuilder("functionCall");
+
+        // Function name
+        sb.append("\n").append(formatChild("name: '" + node.name() + "'", node.arguments().isEmpty()));
+
+        // Arguments
+        if (!node.arguments().isEmpty()) {
+            sb.append("\n").append(formatChild("arguments", true));
+            for (int i = 0; i < node.arguments().size(); i++) {
+                boolean isLast = (i == node.arguments().size() - 1);
+                sb.append("\n").append(formatChild(
+                    formatChild(node.arguments().get(i).accept(this), true),
+                    isLast
+                ));
+            }
+        }
+
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(ReturnStatementNode node) {
+        return "returnStatement\n" +
+            formatChild(node.expression().accept(this), true);
+    }
 }

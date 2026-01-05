@@ -147,6 +147,57 @@ public class ASTInterpreter implements ASTVisitor<Object> {
         }
     }
 
+    @Override
+    public Object visit(FunctionDeclarationNode node) {
+        Function function = new Function(node.parameters(), node.body(), this.env);
+
+        env.putFunction(node.name(), function);
+
+        return null;
+    }
+
+    @Override
+    public Object visit(FunctionCallNode node) {
+        if (!env.hasFunction(node.name())) {
+            throw new RuntimeException("Undefined function: " + node.name());
+        }
+
+        Function function = env.getFunction(node.name());
+
+        if (node.arguments().size() != function.parameters().size()) {
+            throw new RuntimeException("Function " + node.name() + " expects " +
+                function.parameters().size() + " arguments but got " + node.arguments().size());
+        }
+
+        Environment functionEnv = new Environment(function.closureEnv());
+
+        for (int i = 0; i < function.parameters().size(); i++) {
+            String paramName = function.parameters().get(i);
+            Object argValue = node.arguments().get(i).accept(this);
+            functionEnv.put(paramName, argValue);
+        }
+
+        Environment previousEnv = this.env;
+        this.env = functionEnv;
+
+        Object result = null;
+        try {
+            function.body().accept(this);
+        } catch (ReturnException returnEx) {
+            result = returnEx.value();
+        }
+
+        this.env = previousEnv;
+
+        return result;
+    }
+
+    @Override
+    public Object visit(ReturnStatementNode node) {
+        Object value = node.expression().accept(this);
+        throw new ReturnException(value);
+    }
+
     private int toInt(Object value) {
         if (value instanceof Integer) {
             return (Integer) value;
