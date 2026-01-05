@@ -6,6 +6,8 @@ public interface ASTVisitor<T> {
     T visit(VarAssignmentNode node);
     T visit(PrintStatementNode node);
     T visit(IfStatementNode node);
+    T visit(WhileStatementNode node);
+    T visit(ForStatementNode node);
     T visit(BlockNode node);
     T visit(ExpressionStatementNode node);
 

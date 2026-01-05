@@ -59,6 +59,31 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     }
 
     @Override
+    public Object visit(WhileStatementNode node) {
+        Object result = null;
+        while (toBoolean(node.condition().accept(this))) {
+            result = node.body().accept(this);
+        }
+        return result;
+    }
+
+    @Override
+    public Object visit(ForStatementNode node) {
+        this.env = new Environment(this.env);
+
+        node.initialization().accept(this);
+
+        Object result = null;
+        while (toBoolean(node.condition().accept(this))) {
+            result = node.body().accept(this);
+            node.update().accept(this);
+        }
+
+        this.env = env.getParent();
+        return result;
+    }
+
+    @Override
     public Object visit(BlockNode node) {
         this.env = new Environment(this.env);
         Object result = null;

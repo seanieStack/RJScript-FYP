@@ -10,6 +10,8 @@ statement : varDeclaration
           | varAssignment
           | printStatement
           | ifStatement
+          | whileStatement
+          | forStatement
           | expressionStatement
           ;
 
@@ -24,6 +26,14 @@ ifStatement : IF LPAREN expression RPAREN block elseIfStatement* elseStatement? 
 elseIfStatement : ELSE IF LPAREN expression RPAREN block ;
 
 elseStatement : ELSE block ;
+
+whileStatement : WHILE LPAREN expression RPAREN block ;
+
+forStatement : FOR LPAREN forInit expression SEMICOLON forUpdate RPAREN block ;
+
+forInit : (LET IDENTIFIER EQUALS expression | IDENTIFIER EQUALS expression) SEMICOLON ;
+
+forUpdate : IDENTIFIER EQUALS expression ;
 
 block : LBRACE statement* RBRACE ;
 
@@ -52,6 +62,8 @@ LET       : 'let' ;
 PRINT     : 'print' ;
 IF        : 'if' ;
 ELSE      : 'else' ;
+WHILE     : 'while' ;
+FOR       : 'for' ;
 EQUALS    : '=' ;
 EQ        : '==' ;
 NEQ       : '!=' ;
