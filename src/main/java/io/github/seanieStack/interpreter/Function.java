@@ -1,30 +1,13 @@
 package io.github.seanieStack.interpreter;
 
-import io.github.seanieStack.ast.BlockNode;
-import io.github.seanieStack.enviroments.Environment;
+import io.github.seanieStack.ast.structural.BlockNode;
+import io.github.seanieStack.environments.Environment;
 
 import java.util.List;
 
-public class Function {
-    private final List<String> parameters;
-    private final BlockNode body;
-    private final Environment closureEnv;
-
-    public Function(List<String> parameters, BlockNode body, Environment closureEnv) {
-        this.parameters = parameters;
-        this.body = body;
-        this.closureEnv = closureEnv;
-    }
-
-    public List<String> parameters() {
-        return parameters;
-    }
-
-    public BlockNode body() {
-        return body;
-    }
-
-    public Environment closureEnv() {
-        return closureEnv;
-    }
+/**
+ * Represents a user-defined function with support for lexical closures.
+ * Captures the environment where the function was defined to enable proper variable scoping.
+ */
+public record Function(List<String> parameters, BlockNode body, Environment closureEnv) {
 }
