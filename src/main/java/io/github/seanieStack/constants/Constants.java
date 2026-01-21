@@ -34,4 +34,6 @@ public final class Constants {
     // Type conversion values
     public static final int TRUE_INTEGER_VALUE = 1;
     public static final int FALSE_INTEGER_VALUE = 0;
+    public static final double TRUE_FLOAT_VALUE = 1.0;
+    public static final double FALSE_FLOAT_VALUE = 0.0;
 }

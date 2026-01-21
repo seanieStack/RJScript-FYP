@@ -29,8 +29,11 @@ public final class ErrorMessages {
     // Type conversion errors
     public static final String ERROR_NULL_TO_INTEGER = "Cannot convert null to integer";
     public static final String ERROR_NULL_TO_BOOLEAN = "Cannot convert null to boolean";
+    public static final String ERROR_NULL_TO_FLOAT = "Cannot convert null to double";
     public static final String ERROR_CANNOT_CONVERT_TO_INTEGER = "Cannot convert %s to integer";
     public static final String ERROR_CANNOT_CONVERT_TO_BOOLEAN = "Cannot convert %s to boolean";
+    public static final String ERROR_CANNOT_CONVERT_FLOAT = "Cannot convert %s to float";
+
 
     // Error prefixes
     public static final String ERROR_PREFIX = "Error: ";

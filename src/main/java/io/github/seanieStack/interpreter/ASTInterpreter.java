@@ -190,23 +190,29 @@ public class ASTInterpreter implements ASTVisitor<Object> {
         Object left = node.left().accept(this);
         Object right = node.right().accept(this);
 
+        boolean isFloat = (left instanceof Double || right instanceof Double);
+
         return switch (node.operator()) {
-            case ADD -> toInt(left) + toInt(right);
-            case SUBTRACT -> toInt(left) - toInt(right);
-            case MULTIPLY -> toInt(left) * toInt(right);
+            case ADD -> isFloat ? toDouble(left) + toDouble(right) : toInt(left) + toInt(right);
+            case SUBTRACT -> isFloat ? toDouble(left) - toDouble(right) : toInt(left) - toInt(right);
+            case MULTIPLY -> isFloat ? toDouble(left) * toDouble(right) : toInt(left) * toInt(right);
             case DIVIDE -> {
-                int rightVal = toInt(right);
-                if (rightVal == 0) {
-                    throw new RuntimeException(ErrorMessages.ERROR_DIVISION_BY_ZERO);
+                if (isFloat) {
+                    double rightVal = toDouble(right);
+                    if (rightVal == 0.0) throw new RuntimeException(ErrorMessages.ERROR_DIVISION_BY_ZERO);
+                    yield toDouble(left) / rightVal;
+                } else {
+                    int rightVal = toInt(right);
+                    if (rightVal == 0) throw new RuntimeException(ErrorMessages.ERROR_DIVISION_BY_ZERO);
+                    yield toInt(left) / rightVal;
                 }
-                yield toInt(left) / rightVal;
             }
-            case LESS_THAN -> toInt(left) < toInt(right);
-            case GREATER_THAN -> toInt(left) > toInt(right);
-            case LESS_EQUAL -> toInt(left) <= toInt(right);
-            case GREATER_EQUAL -> toInt(left) >= toInt(right);
-            case EQUAL -> toInt(left) == toInt(right);
-            case NOT_EQUAL -> toInt(left) != toInt(right);
+            case LESS_THAN -> isFloat ? toDouble(left) < toDouble(right) : toInt(left) < toInt(right);
+            case GREATER_THAN -> isFloat ? toDouble(left) > toDouble(right) : toInt(left) > toInt(right);
+            case LESS_EQUAL -> isFloat ? toDouble(left) <= toDouble(right) : toInt(left) <= toInt(right);
+            case GREATER_EQUAL -> isFloat ? toDouble(left) >= toDouble(right) : toInt(left) >= toInt(right);
+            case EQUAL -> isFloat ? toDouble(left) == toDouble(right) : toInt(left) == toInt(right);
+            case NOT_EQUAL -> isFloat ? toDouble(left) != toDouble(right) : toInt(left) != toInt(right);
         };
     }
 
@@ -221,7 +227,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     public Object visit(UnaryOpNode node) {
         Object operand = node.operand().accept(this);
         return switch (node.operator()) {
-            case NEGATE -> -toInt(operand);
+            case NEGATE -> operand instanceof Double ? -toDouble(operand) : -toInt(operand);
         };
     }
 
@@ -262,6 +268,11 @@ public class ASTInterpreter implements ASTVisitor<Object> {
         } else {
             throw new RuntimeException(ErrorMessages.ERROR_UNDEFINED_VARIABLE + node.name());
         }
+    }
+
+    @Override
+    public Object visit(FloatLiteralNode node) {
+        return node.value();
     }
 
     /**
@@ -344,7 +355,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
 
     /**
      * Converts a value to an integer using type coercion rules. Integers are returned
-     * as-is, booleans are converted to 1 (true) or 0 (false). Other types cause an error.
+     * as-is, booleans are converted to 1 (true) or 0 (false), floats are rounded. Other types cause an error.
      *
      * @param value the value to convert to an integer
      * @return the integer representation of the value
@@ -354,6 +365,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
         return switch (value) {
             case null -> throw new RuntimeException(ErrorMessages.ERROR_NULL_TO_INTEGER);
             case Integer i -> i;
+            case Double d -> (int) Math.round(d);
             case Boolean b -> b ? Constants.TRUE_INTEGER_VALUE : Constants.FALSE_INTEGER_VALUE;
             default -> throw new RuntimeException(String.format(ErrorMessages.ERROR_CANNOT_CONVERT_TO_INTEGER, value));
         };
@@ -373,7 +385,27 @@ public class ASTInterpreter implements ASTVisitor<Object> {
             case null -> throw new RuntimeException(ErrorMessages.ERROR_NULL_TO_BOOLEAN);
             case Boolean b -> b;
             case Integer i -> i != 0;
+            case Double d -> d != 0.0;
             default -> throw new RuntimeException(String.format(ErrorMessages.ERROR_CANNOT_CONVERT_TO_BOOLEAN, value));
+        };
+    }
+
+    /**
+     * Converts a value to a double using type coercion rules. Floats are returned
+     * as-is, integers are converted into floats with .0, booleans are 1.0 (true) or
+     * 0.0 (flase), other types cause and error.
+     *
+     * @param value the value to convert to a double
+     * @return  the double representation of the value
+     * @throws RuntimeException if the value cannot be converted to a double
+     */
+    private double toDouble(Object value) {
+        return switch (value){
+            case null -> throw new RuntimeException(ErrorMessages.ERROR_NULL_TO_FLOAT);
+            case  Double d -> d;
+            case Integer i -> (double) i;
+            case Boolean b -> b ? Constants.TRUE_FLOAT_VALUE : Constants.FALSE_FLOAT_VALUE;
+            default -> throw new RuntimeException(String.format(ErrorMessages.ERROR_CANNOT_CONVERT_FLOAT, value));
         };
     }
 }
