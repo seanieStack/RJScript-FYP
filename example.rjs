@@ -72,29 +72,29 @@ print(y != 15);
 
 //if statements
 if (x > 5) {
-    print(100)
+    print(100);
 }
 
 if (y < 10) {
-    print(200)
+    print(200);
 }
 
 //if-else statements
 if (x > 20) {
-    print(300)
+    print(300);
 } else {
-    print(400)
+    print(400);
 }
 
 //if-else if-else chains
 if (x > 50) {
-    print(500)
+    print(500);
 } else if (x > 20) {
-    print(600)
+    print(600);
 } else if (x > 5) {
-    print(700)
+    print(700);
 } else {
-    print(800)
+    print(800);
 }
 
 //variable scoping with blocks

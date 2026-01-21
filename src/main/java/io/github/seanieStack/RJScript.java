@@ -1,8 +1,10 @@
 package io.github.seanieStack;
 
-import io.github.seanieStack.ast.ASTBuilder;
-import io.github.seanieStack.ast.ASTNode;
-import io.github.seanieStack.ast.ProgramNode;
+import io.github.seanieStack.ast.builder.ASTBuilder;
+import io.github.seanieStack.ast.core.ASTNode;
+import io.github.seanieStack.ast.structural.ProgramNode;
+import io.github.seanieStack.constants.Constants;
+import io.github.seanieStack.constants.ErrorMessages;
 import io.github.seanieStack.interpreter.ASTInterpreter;
 import io.github.seanieStack.parser.RJScriptLexer;
 import io.github.seanieStack.parser.RJScriptParser;
@@ -13,7 +15,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * Main entry point for the RJScript interpreter.
+ * Supports file execution and REPL mode.
+ */
 public class RJScript {
+    /**
+     * Starts the interpreter. Runs the file if provided, otherwise starts REPL.
+     *
+     * @param args command-line arguments; optional .rjs file path
+     */
     public static void main(String[] args) {
         if (args.length > 0) {
             runFile(args[0]);
@@ -22,58 +33,60 @@ public class RJScript {
         }
     }
 
+    /**
+     * Executes a .rjs script file.
+     * Reads the file, parses it, builds an AST, prints the AST structure, and interprets it.
+     *
+     * @param filePath path to the .rjs file to execute
+     */
     private static void runFile(String filePath) {
         try {
-            if (!filePath.endsWith(".rjs")) {
-                System.err.println("Error: File must have .rjs extension");
-                System.exit(1);
+            if (!filePath.endsWith(Constants.FILE_EXTENSION)) {
+                System.err.println(ErrorMessages.ERROR_INVALID_FILE_EXTENSION);
+                System.exit(Constants.EXIT_CODE_ERROR);
             }
 
-            //lexer
             CharStream inputStream = CharStreams.fromFileName(filePath);
             RJScriptLexer lexer = new RJScriptLexer(inputStream);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-            //parser
             RJScriptParser parser = new RJScriptParser(tokens);
             RJScriptParser.ProgramContext parseTree = parser.program();
 
-            //to ast
             ASTBuilder astBuilder = new ASTBuilder();
             ASTNode ast = astBuilder.visit(parseTree);
 
-            //print ast
-            System.out.println("AST:");
+            System.out.println(Constants.OUTPUT_AST_LABEL);
             ASTPrinter astPrinter = new ASTPrinter();
             System.out.println(astPrinter.visit((ProgramNode) ast));
-            System.out.println("Output:");
+            System.out.println(Constants.OUTPUT_EXECUTION_LABEL);
 
-            //interpreter
             ASTInterpreter interpreter = new ASTInterpreter();
             ast.accept(interpreter);
 
         } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
-            System.exit(1);
+            System.err.println(ErrorMessages.ERROR_READING_FILE_PREFIX + e.getMessage());
+            System.exit(Constants.EXIT_CODE_ERROR);
         }
     }
 
+    /**
+     * Runs the interactive REPL (Read-Eval-Print Loop).
+     * Statements must end with a semicolon to be executed. Type 'exit' to quit.
+     */
     private static void runRepl() {
-        System.out.println("RJScript REPL");
-        System.out.println("Type 'exit' to quit");
+        System.out.println(Constants.REPL_WELCOME_MESSAGE);
+        System.out.println(Constants.REPL_EXIT_INSTRUCTIONS);
         System.out.println();
 
         ASTInterpreter interpreter = new ASTInterpreter();
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder multiLineInput = new StringBuilder();
 
-        //keep looping till exit
         while (true) {
             try {
                 if (multiLineInput.isEmpty()) {
-                    System.out.print("> ");
-                } else {
-                    System.out.print("");
+                    System.out.print(Constants.REPL_PROMPT);
                 }
 
                 String line = reader.readLine();
@@ -84,7 +97,7 @@ public class RJScript {
 
                 line = line.trim();
 
-                if (line.equals("exit")) {
+                if (line.equals(Constants.REPL_EXIT_COMMAND)) {
                     break;
                 }
 
@@ -92,9 +105,9 @@ public class RJScript {
                     continue;
                 }
 
-                multiLineInput.append(line).append("\n");
+                multiLineInput.append(line).append(Constants.NEWLINE);
 
-                if (line.endsWith(";")) {
+                if (line.endsWith(Constants.STATEMENT_TERMINATOR)) {
                     String input = multiLineInput.toString();
                     multiLineInput.setLength(0);
 
@@ -112,15 +125,15 @@ public class RJScript {
 
                             ast.accept(interpreter);
                         } else {
-                            System.err.println("Syntax error in input");
+                            System.err.println(ErrorMessages.ERROR_SYNTAX_ERROR);
                         }
                     } catch (Exception e) {
-                        System.err.println("Error: " + e.getMessage());
+                        System.err.println(ErrorMessages.ERROR_PREFIX + e.getMessage());
                     }
                 }
 
             } catch (IOException e) {
-                System.err.println("Error reading input: " + e.getMessage());
+                System.err.println(ErrorMessages.ERROR_READING_INPUT_PREFIX + e.getMessage());
                 break;
             }
         }

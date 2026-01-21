@@ -1,10 +1,28 @@
 package io.github.seanieStack.util;
 
-import io.github.seanieStack.ast.*;
+import io.github.seanieStack.ast.core.ASTNode;
+import io.github.seanieStack.ast.core.ASTVisitor;
+import io.github.seanieStack.ast.expressions.*;
+import io.github.seanieStack.ast.statements.*;
+import io.github.seanieStack.ast.structural.BlockNode;
+import io.github.seanieStack.ast.structural.FunctionDeclarationNode;
+import io.github.seanieStack.ast.structural.ProgramNode;
+
 import java.util.List;
 
+/**
+ * Utility class that creates a visual tree representation of an AST.
+ * Implements the visitor pattern to traverse nodes and generate formatted output.
+ */
 public class ASTPrinter implements ASTVisitor<String> {
 
+    /**
+     * Formats a child node's string representation with tree drawing characters.
+     *
+     * @param childString the string representation of the child node
+     * @param isLast whether this is the last child (affects branch drawing)
+     * @return the formatted string with tree characters
+     */
     private String formatChild(String childString, boolean isLast) {
         String[] lines = childString.split("\n");
         StringBuilder sb = new StringBuilder();
