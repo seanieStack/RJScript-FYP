@@ -346,6 +346,8 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     public ASTNode visitPrimary(RJScriptParser.PrimaryContext ctx) {
         if (ctx.INT() != null) {
             return new IntLiteralNode(Integer.parseInt(ctx.INT().getText()));
+        } else if (ctx.FLOAT() != null) {
+            return new FloatLiteralNode(Double.parseDouble((ctx.FLOAT().getText())));
         } else if (ctx.BOOLEAN() != null) {
             return new BoolLiteralNode(Boolean.parseBoolean(ctx.BOOLEAN().getText()));
         } else if (ctx.functionCall() != null) {

@@ -60,6 +60,7 @@ unary : MINUS unary
       ;
 
 primary : INT
+        | FLOAT
         | BOOLEAN
         | functionCall
         | IDENTIFIER
@@ -97,6 +98,7 @@ RBRACE    : '}' ;
 SEMICOLON : ';' ;
 COMMA     : ',' ;
 BOOLEAN   : 'true' | 'false' ;
+FLOAT     : [0-9]+ '.' [0-9]+;
 INT       : [0-9]+ ;
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]* ;
 WS        : [ \t\r\n]+ -> skip ;
