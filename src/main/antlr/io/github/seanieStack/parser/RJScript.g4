@@ -62,6 +62,7 @@ unary : MINUS unary
 primary : INT
         | FLOAT
         | BOOLEAN
+        | STRING_LITERAL
         | functionCall
         | IDENTIFIER
         | LPAREN expression RPAREN
@@ -72,34 +73,35 @@ functionCall : IDENTIFIER LPAREN argumentList? RPAREN ;
 argumentList : expression (COMMA expression)* ;
 
 //lexer rules
-LET       : 'let' ;
-PRINT     : 'print' ;
-IF        : 'if' ;
-ELSE      : 'else' ;
-WHILE     : 'while' ;
-FOR       : 'for' ;
-FUNCTION  : 'function' ;
-RETURN    : 'return' ;
-EQUALS    : '=' ;
-EQ        : '==' ;
-NEQ       : '!=' ;
-LT        : '<' ;
-GT        : '>' ;
-LE        : '<=' ;
-GE        : '>=' ;
-PLUS      : '+' ;
-MINUS     : '-' ;
-MULTIPLY  : '*' ;
-DIVISION  : '/' ;
-LPAREN    : '(' ;
-RPAREN    : ')' ;
-LBRACE    : '{' ;
-RBRACE    : '}' ;
-SEMICOLON : ';' ;
-COMMA     : ',' ;
-BOOLEAN   : 'true' | 'false' ;
-FLOAT     : [0-9]+ '.' [0-9]+;
-INT       : [0-9]+ ;
-IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]* ;
-WS        : [ \t\r\n]+ -> skip ;
-COMMENT   : '//' ~[\r\n]* -> skip ;
+LET             : 'let' ;
+PRINT           : 'print' ;
+IF              : 'if' ;
+ELSE            : 'else' ;
+WHILE           : 'while' ;
+FOR             : 'for' ;
+FUNCTION        : 'function' ;
+RETURN          : 'return' ;
+EQUALS          : '=' ;
+EQ              : '==' ;
+NEQ             : '!=' ;
+LT              : '<' ;
+GT              : '>' ;
+LE              : '<=' ;
+GE              : '>=' ;
+PLUS            : '+' ;
+MINUS           : '-' ;
+MULTIPLY        : '*' ;
+DIVISION        : '/' ;
+LPAREN          : '(' ;
+RPAREN          : ')' ;
+LBRACE          : '{' ;
+RBRACE          : '}' ;
+SEMICOLON       : ';' ;
+COMMA           : ',' ;
+BOOLEAN         : 'true' | 'false' ;
+STRING_LITERAL  : '"' (~["\\\r\n] | '\\' .)* '"' ;
+FLOAT           : [0-9]+ '.' [0-9]+;
+INT             : [0-9]+ ;
+IDENTIFIER      : [a-zA-Z_][a-zA-Z0-9_]* ;
+WS              : [ \t\r\n]+ -> skip ;
+COMMENT         : '//' ~[\r\n]* -> skip ;

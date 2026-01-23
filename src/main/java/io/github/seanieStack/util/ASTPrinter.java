@@ -294,6 +294,11 @@ public class ASTPrinter implements ASTVisitor<String> {
     }
 
     @Override
+    public String visit(StringLiteralNode node) {
+        return "stringLiteral: \"" + node.value() + "\"";
+    }
+
+    @Override
     public String visit(FunctionDeclarationNode node) {
         StringBuilder sb = new StringBuilder("functionDeclaration");
 

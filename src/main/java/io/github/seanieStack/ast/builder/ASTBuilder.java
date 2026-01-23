@@ -350,6 +350,11 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
             return new FloatLiteralNode(Double.parseDouble((ctx.FLOAT().getText())));
         } else if (ctx.BOOLEAN() != null) {
             return new BoolLiteralNode(Boolean.parseBoolean(ctx.BOOLEAN().getText()));
+        } else if (ctx.STRING_LITERAL() != null) {
+            String rawText = ctx.STRING_LITERAL().getText();
+            String unquotedText = rawText.substring(1, rawText.length() - 1);
+            String unescapedText = unescapeString(unquotedText);
+            return new StringLiteralNode(unescapedText);
         } else if (ctx.functionCall() != null) {
             return visit(ctx.functionCall());
         } else if (ctx.IDENTIFIER() != null) {
@@ -379,5 +384,36 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
         }
 
         return new FunctionCallNode(name, arguments);
+    }
+
+    /**
+     * Unescapes a string by processing escape sequences like \n, \t, \", \\, etc.
+     *
+     * @param text the string to unescape
+     * @return the unescaped string with escape sequences converted to their actual characters
+     */
+    private String unescapeString(String text) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == '\\' && i + 1 < text.length()) {
+                char next = text.charAt(i + 1);
+                switch (next) {
+                    case 'n' -> result.append('\n');
+                    case 't' -> result.append('\t');
+                    case 'r' -> result.append('\r');
+                    case '"' -> result.append('"');
+                    case '\\' -> result.append('\\');
+                    default -> {
+                        result.append(c);
+                        result.append(next);
+                    }
+                }
+                i++; // Skip the next character since we processed it
+            } else {
+                result.append(c);
+            }
+        }
+        return result.toString();
     }
 }

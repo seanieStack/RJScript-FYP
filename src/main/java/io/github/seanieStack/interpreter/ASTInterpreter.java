@@ -7,7 +7,6 @@ import io.github.seanieStack.ast.statements.*;
 import io.github.seanieStack.ast.structural.BlockNode;
 import io.github.seanieStack.ast.structural.FunctionDeclarationNode;
 import io.github.seanieStack.ast.structural.ProgramNode;
-import io.github.seanieStack.constants.Constants;
 import io.github.seanieStack.constants.ErrorMessages;
 import io.github.seanieStack.environments.Environment;
 
@@ -19,6 +18,7 @@ import io.github.seanieStack.environments.Environment;
 public class ASTInterpreter implements ASTVisitor<Object> {
 
     private Environment env = new Environment(null);
+    private final BinaryOperationEvaluator binaryOpEvaluator = new BinaryOperationEvaluator();
 
     /**
      * Visits a program node and executes all statements in the program sequentially.
@@ -88,13 +88,13 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     @Override
     public Object visit(IfStatementNode node) {
         Object condition = node.condition().accept(this);
-        if (toBoolean(condition)) {
+        if (TypeConverter.toBoolean(condition)) {
             return node.thenBlock().accept(this);
         }
 
         for (IfStatementNode.ElseIfClause elseIf : node.elseIfClauses()) {
             Object elseIfCondition = elseIf.condition().accept(this);
-            if (toBoolean(elseIfCondition)) {
+            if (TypeConverter.toBoolean(elseIfCondition)) {
                 return elseIf.block().accept(this);
             }
         }
@@ -116,7 +116,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     @Override
     public Object visit(WhileStatementNode node) {
         Object result = null;
-        while (toBoolean(node.condition().accept(this))) {
+        while (TypeConverter.toBoolean(node.condition().accept(this))) {
             result = node.body().accept(this);
         }
         return result;
@@ -137,7 +137,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
         node.initialization().accept(this);
 
         Object result = null;
-        while (toBoolean(node.condition().accept(this))) {
+        while (TypeConverter.toBoolean(node.condition().accept(this))) {
             result = node.body().accept(this);
             node.update().accept(this);
         }
@@ -178,42 +178,17 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     }
 
     /**
-     * Visits a binary operation node, evaluates both operands, and performs the
-     * specified arithmetic or comparison operation. Supports addition, subtraction,
-     * multiplication, division, and comparison operators.
+     * Visits a binary operation node, evaluates both operands, and delegates
+     * the operation to the BinaryOperationEvaluator.
      *
      * @param node the binary operation node containing the operator and left/right operands
-     * @return the result of the binary operation (Integer for arithmetic, Boolean for comparisons)
+     * @return the result of the binary operation (Integer, Double, Boolean, or String)
      */
     @Override
     public Object visit(BinaryOpNode node) {
         Object left = node.left().accept(this);
         Object right = node.right().accept(this);
-
-        boolean isFloat = (left instanceof Double || right instanceof Double);
-
-        return switch (node.operator()) {
-            case ADD -> isFloat ? toDouble(left) + toDouble(right) : toInt(left) + toInt(right);
-            case SUBTRACT -> isFloat ? toDouble(left) - toDouble(right) : toInt(left) - toInt(right);
-            case MULTIPLY -> isFloat ? toDouble(left) * toDouble(right) : toInt(left) * toInt(right);
-            case DIVIDE -> {
-                if (isFloat) {
-                    double rightVal = toDouble(right);
-                    if (rightVal == 0.0) throw new RuntimeException(ErrorMessages.ERROR_DIVISION_BY_ZERO);
-                    yield toDouble(left) / rightVal;
-                } else {
-                    int rightVal = toInt(right);
-                    if (rightVal == 0) throw new RuntimeException(ErrorMessages.ERROR_DIVISION_BY_ZERO);
-                    yield toInt(left) / rightVal;
-                }
-            }
-            case LESS_THAN -> isFloat ? toDouble(left) < toDouble(right) : toInt(left) < toInt(right);
-            case GREATER_THAN -> isFloat ? toDouble(left) > toDouble(right) : toInt(left) > toInt(right);
-            case LESS_EQUAL -> isFloat ? toDouble(left) <= toDouble(right) : toInt(left) <= toInt(right);
-            case GREATER_EQUAL -> isFloat ? toDouble(left) >= toDouble(right) : toInt(left) >= toInt(right);
-            case EQUAL -> isFloat ? toDouble(left) == toDouble(right) : toInt(left) == toInt(right);
-            case NOT_EQUAL -> isFloat ? toDouble(left) != toDouble(right) : toInt(left) != toInt(right);
-        };
+        return binaryOpEvaluator.evaluate(node.operator(), left, right);
     }
 
     /**
@@ -227,7 +202,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     public Object visit(UnaryOpNode node) {
         Object operand = node.operand().accept(this);
         return switch (node.operator()) {
-            case NEGATE -> operand instanceof Double ? -toDouble(operand) : -toInt(operand);
+            case NEGATE -> operand instanceof Double ? -TypeConverter.toDouble(operand) : -TypeConverter.toInt(operand);
         };
     }
 
@@ -272,6 +247,11 @@ public class ASTInterpreter implements ASTVisitor<Object> {
 
     @Override
     public Object visit(FloatLiteralNode node) {
+        return node.value();
+    }
+
+    @Override
+    public Object visit(StringLiteralNode node) {
         return node.value();
     }
 
@@ -351,61 +331,5 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     public Object visit(ReturnStatementNode node) {
         Object value = node.expression().accept(this);
         throw new ReturnException(value);
-    }
-
-    /**
-     * Converts a value to an integer using type coercion rules. Integers are returned
-     * as-is, booleans are converted to 1 (true) or 0 (false), floats are rounded. Other types cause an error.
-     *
-     * @param value the value to convert to an integer
-     * @return the integer representation of the value
-     * @throws RuntimeException if the value cannot be converted to an integer
-     */
-    private int toInt(Object value) {
-        return switch (value) {
-            case null -> throw new RuntimeException(ErrorMessages.ERROR_NULL_TO_INTEGER);
-            case Integer i -> i;
-            case Double d -> (int) Math.round(d);
-            case Boolean b -> b ? Constants.TRUE_INTEGER_VALUE : Constants.FALSE_INTEGER_VALUE;
-            default -> throw new RuntimeException(String.format(ErrorMessages.ERROR_CANNOT_CONVERT_TO_INTEGER, value));
-        };
-    }
-
-    /**
-     * Converts a value to a boolean using type coercion rules. Booleans are returned
-     * as-is, non-zero integers are converted to true, and zero is converted to false.
-     * Other types cause an error.
-     *
-     * @param value the value to convert to a boolean
-     * @return the boolean representation of the value
-     * @throws RuntimeException if the value cannot be converted to a boolean
-     */
-    private boolean toBoolean(Object value) {
-        return switch (value) {
-            case null -> throw new RuntimeException(ErrorMessages.ERROR_NULL_TO_BOOLEAN);
-            case Boolean b -> b;
-            case Integer i -> i != 0;
-            case Double d -> d != 0.0;
-            default -> throw new RuntimeException(String.format(ErrorMessages.ERROR_CANNOT_CONVERT_TO_BOOLEAN, value));
-        };
-    }
-
-    /**
-     * Converts a value to a double using type coercion rules. Floats are returned
-     * as-is, integers are converted into floats with .0, booleans are 1.0 (true) or
-     * 0.0 (flase), other types cause and error.
-     *
-     * @param value the value to convert to a double
-     * @return  the double representation of the value
-     * @throws RuntimeException if the value cannot be converted to a double
-     */
-    private double toDouble(Object value) {
-        return switch (value){
-            case null -> throw new RuntimeException(ErrorMessages.ERROR_NULL_TO_FLOAT);
-            case  Double d -> d;
-            case Integer i -> (double) i;
-            case Boolean b -> b ? Constants.TRUE_FLOAT_VALUE : Constants.FALSE_FLOAT_VALUE;
-            default -> throw new RuntimeException(String.format(ErrorMessages.ERROR_CANNOT_CONVERT_FLOAT, value));
-        };
     }
 }
