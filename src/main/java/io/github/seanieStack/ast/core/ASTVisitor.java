@@ -29,6 +29,7 @@ public interface ASTVisitor<T> {
     T visit(BoolLiteralNode node);
     T visit(VariableNode node);
     T visit(FloatLiteralNode floatLiteralNode);
+    T visit(StringLiteralNode stringLiteralNode);
 
     T visit(BlockNode node);
     T visit(FunctionDeclarationNode node);
