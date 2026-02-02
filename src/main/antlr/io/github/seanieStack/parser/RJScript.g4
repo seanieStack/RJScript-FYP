@@ -8,7 +8,6 @@ program : statement+ EOF ;
 
 statement : varDeclaration
           | varAssignment
-          | printStatement
           | ifStatement
           | whileStatement
           | forStatement
@@ -20,8 +19,6 @@ statement : varDeclaration
 varDeclaration : LET IDENTIFIER EQUALS expression SEMICOLON ;
 
 varAssignment : IDENTIFIER EQUALS expression SEMICOLON ;
-
-printStatement : PRINT LPAREN expression RPAREN SEMICOLON ;
 
 ifStatement : IF LPAREN expression RPAREN block elseIfStatement* elseStatement? ;
 
@@ -74,7 +71,6 @@ argumentList : expression (COMMA expression)* ;
 
 //lexer rules
 LET             : 'let' ;
-PRINT           : 'print' ;
 IF              : 'if' ;
 ELSE            : 'else' ;
 WHILE           : 'while' ;

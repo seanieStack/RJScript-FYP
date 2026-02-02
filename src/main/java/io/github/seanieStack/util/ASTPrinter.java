@@ -79,15 +79,6 @@ public class ASTPrinter implements ASTVisitor<String> {
     }
 
     @Override
-    public String visit(PrintStatementNode node) {
-        return "printStatement\n" +
-                formatChild(
-                        node.expression().accept(this),
-                        true
-                );
-    }
-
-    @Override
     public String visit(WhileStatementNode node) {
         return "whileStatement\n" +
                 formatChild(

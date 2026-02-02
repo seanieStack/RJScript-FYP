@@ -25,6 +25,7 @@ public final class ErrorMessages {
     public static final String ERROR_UNDEFINED_VARIABLE = "Undefined variable: ";
     public static final String ERROR_UNDEFINED_FUNCTION = "Undefined function: ";
     public static final String ERROR_FUNCTION_ARGUMENT_MISMATCH = "Function %s expects %d arguments but got %d";
+    public static final String ERROR_NATIVE_FUNCTION_ARGUMENT_MISMATCH = "Native function %s expects %d arguments but got %d";
 
     // Type conversion errors
     public static final String ERROR_NULL_TO_INTEGER = "Cannot convert null to integer";

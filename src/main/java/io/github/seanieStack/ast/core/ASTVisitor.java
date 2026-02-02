@@ -15,7 +15,6 @@ import io.github.seanieStack.ast.structural.ProgramNode;
 public interface ASTVisitor<T> {
     T visit(VarDeclarationNode node);
     T visit(VarAssignmentNode node);
-    T visit(PrintStatementNode node);
     T visit(IfStatementNode node);
     T visit(WhileStatementNode node);
     T visit(ForStatementNode node);

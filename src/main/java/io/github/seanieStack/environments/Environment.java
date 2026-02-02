@@ -1,6 +1,6 @@
 package io.github.seanieStack.environments;
 
-import io.github.seanieStack.interpreter.Function;
+import io.github.seanieStack.interpreter.Callable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ public class Environment {
     private final Environment parent;
 
     private final Map<String, Object> variables = new HashMap<>();
-    private final Map<String, Function> functions = new HashMap<>();
+    private final Map<String, Callable> functions = new HashMap<>();
 
     /**
      * Creates a new environment with the specified parent.
@@ -95,22 +95,22 @@ public class Environment {
     }
 
     /**
-     * Registers a function in the current scope.
+     * Registers a callable (function or native function) in the current scope.
      *
-     * @param functionName the name of the function
-     * @param function the function object to register
+     * @param functionName the name of the callable
+     * @param callable the callable object to register
      */
-    public void putFunction(String functionName, Function function) {
-        functions.put(functionName, function);
+    public void putFunction(String functionName, Callable callable) {
+        functions.put(functionName, callable);
     }
 
     /**
-     * Looks up a function by name, searching up the scope chain if necessary.
+     * Looks up a callable by name, searching up the scope chain if necessary.
      *
-     * @param functionName the name of the function to look up
-     * @return the function object, or null if not found
+     * @param functionName the name of the callable to look up
+     * @return the callable object, or null if not found
      */
-    public Function getFunction(String functionName) {
+    public Callable getFunction(String functionName) {
         if (functions.containsKey(functionName)) {
             return functions.get(functionName);
         } else if (parent != null) {
