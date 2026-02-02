@@ -9,6 +9,11 @@ import io.github.seanieStack.ast.structural.FunctionDeclarationNode;
 import io.github.seanieStack.ast.structural.ProgramNode;
 import io.github.seanieStack.constants.ErrorMessages;
 import io.github.seanieStack.environments.Environment;
+import io.github.seanieStack.stdlib.NativeFunction;
+import io.github.seanieStack.stdlib.StandardLibrary;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Interprets and executes an Abstract Syntax Tree (AST) by walking through nodes
@@ -19,6 +24,10 @@ public class ASTInterpreter implements ASTVisitor<Object> {
 
     private Environment env = new Environment(null);
     private final BinaryOperationEvaluator binaryOpEvaluator = new BinaryOperationEvaluator();
+
+    public ASTInterpreter() {
+        StandardLibrary.register(env);
+    }
 
     /**
      * Visits a program node and executes all statements in the program sequentially.
@@ -60,20 +69,6 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     public Object visit(VarAssignmentNode node){
         Object value = node.expression().accept(this);
         env.update(node.identifier(), value);
-        return value;
-    }
-
-    /**
-     * Visits a print statement node, evaluates the expression, and outputs
-     * the result to standard output.
-     *
-     * @param node the print statement node containing the expression to print
-     * @return the value that was printed
-     */
-    @Override
-    public Object visit(PrintStatementNode node) {
-        Object value = node.expression().accept(this);
-        System.out.println(value);
         return value;
     }
 
@@ -201,9 +196,14 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     @Override
     public Object visit(UnaryOpNode node) {
         Object operand = node.operand().accept(this);
-        return switch (node.operator()) {
-            case NEGATE -> operand instanceof Double ? -TypeConverter.toDouble(operand) : -TypeConverter.toInt(operand);
-        };
+        if (node.operator() == UnaryOpNode.Operator.NEGATE) {
+            if (operand instanceof Double) {
+                return -TypeConverter.toDouble(operand);
+            } else {
+                return -TypeConverter.toInt(operand);
+            }
+        }
+        throw new RuntimeException("Unknown unary operator: " + node.operator());
     }
 
     /**
@@ -273,8 +273,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
 
     /**
      * Visits a function call node and executes the function with the provided arguments.
-     * Creates a new environment that inherits from the function's closure environment,
-     * binds arguments to parameters, executes the function body, and handles return values.
+     * Handles both native functions (built-in) and user-defined functions.
      *
      * @param node the function call node containing the function name and arguments
      * @return the value returned by the function, or null if no return statement was executed
@@ -286,8 +285,35 @@ public class ASTInterpreter implements ASTVisitor<Object> {
             throw new RuntimeException(ErrorMessages.ERROR_UNDEFINED_FUNCTION + node.name());
         }
 
-        Function function = env.getFunction(node.name());
+        Callable callable = env.getFunction(node.name());
 
+        if (callable instanceof NativeFunction nativeFunction) {
+            return callNativeFunction(nativeFunction, node);
+        } else if (callable instanceof Function function) {
+            return callUserFunction(function, node);
+        }
+
+        throw new RuntimeException(ErrorMessages.ERROR_UNDEFINED_FUNCTION + node.name());
+    }
+
+    private Object callNativeFunction(NativeFunction nativeFunction, FunctionCallNode node) {
+        int expectedArity = nativeFunction.arity();
+        int actualArgs = node.arguments().size();
+
+        if (expectedArity != -1 && actualArgs != expectedArity) {
+            throw new RuntimeException(String.format(ErrorMessages.ERROR_NATIVE_FUNCTION_ARGUMENT_MISMATCH,
+                nativeFunction.name(), expectedArity, actualArgs));
+        }
+
+        List<Object> evaluatedArgs = new ArrayList<>();
+        for (ASTNode arg : node.arguments()) {
+            evaluatedArgs.add(arg.accept(this));
+        }
+
+        return nativeFunction.call(evaluatedArgs);
+    }
+
+    private Object callUserFunction(Function function, FunctionCallNode node) {
         if (node.arguments().size() != function.parameters().size()) {
             throw new RuntimeException(String.format(ErrorMessages.ERROR_FUNCTION_ARGUMENT_MISMATCH,
                 node.name(), function.parameters().size(), node.arguments().size()));

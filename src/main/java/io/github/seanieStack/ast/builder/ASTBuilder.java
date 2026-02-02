@@ -58,17 +58,6 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     }
 
     /**
-     * Visits a print statement context and builds a PrintStatementNode.
-     *
-     * @param ctx the print statement context from the parse tree
-     * @return a PrintStatementNode containing the expression to print
-     */
-    @Override
-    public ASTNode visitPrintStatement(RJScriptParser.PrintStatementContext ctx) {
-        return new PrintStatementNode(visit(ctx.expression()));
-    }
-
-    /**
      * Visits an if statement context and builds an IfStatementNode including
      * the condition, then block, all else-if clauses, and optional else block.
      *
