@@ -1,62 +1,59 @@
-//basic arithmetic operations (expression statements)
+//ints and float literals
+print("ints and float literals");
+print("Expected:\n42\n3.14");
+print("---------------------------")
+let intVal = 42;
+let floatVal = 3.14;
+print(intVal);
+print(floatVal);
+
+//boolean literals
+print("\n\nboolean literals");
+print("Expected:\ntrue\nfalse");
+print("---------------------------")
+let t = true;
+let f = false;
+print(t);
+print(f);
+
+//string literals with escape sequences
+print("\n\nstring literals with escape sequences");
+print("Expected:\nHello, World\nLine1{newline}Line2 {gap} {backslash}Backslash{quotation marks}Quote");
+print("---------------------------")
+let greeting = "Hello, World!";
+let escaped = "Line1\nLine2\tTabbed\\Backslash\"Quote";
+print(greeting);
+print(escaped);
+
+//arithmetic operators
+print("\n\narithmetic operators");
+print("Expected:\n15\n17\n32\n20");
+print("---------------------------");
 print(10 + 5);
 print(20 - 3);
 print(8 * 4);
 print(100 / 5);
 
-//operations with parentheses
-print((100 + 50) - 25);
-print(5 + (10 - 2) + 8);
-print((10 + 20) * 3);
-print((100 - 20) / 4);
-
-//complex expressions with precedence
-print(10 + 5 * 2);
-print(100 - 20 / 4);
-print(2 + 3 * 4 - 1);
-
-//nested parentheses
+//operator precedence and parentheses
+print("\n\noperator precedence and parentheses");
+print("Expected:\n14\n20\n27");
+print("---------------------------");
+print(2 + 3 * 4);
+print((2 + 3) * 4);
 print(((10 + 5) * 2) - 3);
-print((67 + (85 - 5) + 10) / 2);
-print(((100 / 5) + (20 * 2)) - 10);
 
-//unary minus
+//unary negation
+print("\n\nunary negation");
+print("Expected:\n-10\n-3.14\n-8");
+print("---------------------------");
 print(-10);
-print(-5 + 10);
-print(-(10 + 5));
-print(-10 * 2);
-print(-(10 * 2));
-
-//variable declarations with 'let'
-let x = 10;
-let y = 20;
-let z = x + y;
-
-//using variables in expressions
-print(x * 2);
-print(y - x);
-print(z / 3);
-
-//variables in complex expressions
-let result = (x + y) * 2;
-
-//print statements
-print(x);
-print(y);
-print(z);
-print(result);
-
-//print with expressions
-print(x + y + z);
-print((x * y) - z);
-
-//boolean literals
-let isTrue = true;
-let isFalse = false;
-print(isTrue);
-print(isFalse);
+print(-floatVal);
+print(-(5 + 3));
 
 //comparison operators
+print("\n\ncomparison operators");
+print("Expected:\ntrue\nfalse\ntrue\nfalse\ntrue\ntrue");
+print("---------------------------");
 print(10 > 5);
 print(10 < 5);
 print(10 >= 10);
@@ -64,126 +61,342 @@ print(10 <= 9);
 print(10 == 10);
 print(10 != 5);
 
-//comparison with variables
-print(x > y);
-print(x < y);
-print(x == 10);
-print(y != 15);
+//variable declaration, assignment, and reassignment
+print("\n\nvariable declaration, assignment, and reassignment");
+print("Expected:\n30\n99");
+print("---------------------------");
+let x = 10;
+let y = 20;
+let z = x + y;
+print(z);
+x = 99;
+print(x);
 
-//if statements
-if (x > 5) {
-    print(100);
-}
+//string concatenation
+print("\n\nstring concatenation");
+print("Expected:\nHello World");
+print("---------------------------");
+let first = "Hello";
+let second = " World";
+let combined = first + second;
+print(combined);
 
-if (y < 10) {
-    print(200);
-}
-
-//if-else statements
-if (x > 20) {
-    print(300);
-} else {
-    print(400);
-}
-
-//if-else if-else chains
-if (x > 50) {
-    print(500);
-} else if (x > 20) {
-    print(600);
-} else if (x > 5) {
-    print(700);
-} else {
-    print(800);
-}
-
-//variable scoping with blocks
+//block scoping and variable shadowing
+print("\n\nblock scoping and variable shadowing");
+print("Expected:\n2\n1");
+print("---------------------------");
 let outer = 1;
-print(outer);
-
 if (true) {
-    let inner = 2;
-    print(inner);
-    let outer = 3;
-    print(outer)
+    let outer = 2;
+    print(outer);
 }
-
 print(outer);
 
-//nested if statements with scoping
-let a = 10;
-if (a > 5) {
-    let b = 20;
-    print(b);
-
-    if (b > 15) {
-        let c = 30;
-        print(c);
-        print(a + b + c)
-    }
-
-    print(a + b)
+//if / else if / else
+print("\n\nif / else if / else");
+print("Expected:\nC");
+print("---------------------------");
+let score = 75;
+if (score >= 90) {
+    print("A");
+} else if (score >= 80) {
+    print("B");
+} else if (score >= 70) {
+    print("C");
+} else {
+    print("F");
 }
-print(a);
 
-//variable re-assignment
-let counter = 0;
-counter = 5;
-print(counter);
-counter = counter + 10;
-print(counter);
+//while loop
+print("\n\nwhile loop");
+print("Expected:\n0\n1\n2\n3\n4");
+print("---------------------------");
+let count = 0;
+while (count < 5) {
+    print(count);
+    count = count + 1;
+}
 
-//while loops
-let i = 0;
-while (i < 5) {
+//for loop with let
+print("\n\nfor loop with let");
+print("Expected:\n0\n1\n2\n3\n4");
+print("---------------------------");
+for (let i = 0; i < 5; i = i + 1) {
     print(i);
-    i = i + 1;
 }
 
-//while loop with condition
-let num = 10;
-while (num > 5) {
-    print(num);
-    num = num - 1;
-}
-
-//for loops with let initialization
-for (let j = 0; j < 5; j = j + 1) {
+//for loop with existing variable
+print("\n\nfor loop with existing variable");
+print("Expected:\n10\n11\n12");
+print("---------------------------");
+let j = 0;
+for (j = 10; j < 13; j = j + 1) {
     print(j);
 }
 
-//for loops with existing variable
-let k = 0;
-for (k = 1; k < 4; k = k + 1) {
-    print(k);
-}
-
-//for loop with arithmetic
-for (let m = 0; m < 10; m = m + 2) {
-    print(m);
+//for loop with step > 1
+print("\n\nfor loop with step > 1");
+print("Expected:\n0\n2\n4\n6\n8");
+print("---------------------------");
+for (let s = 0; s < 10; s = s + 2) {
+    print(s);
 }
 
 //nested loops
-for (let n = 0; n < 3; n = n + 1) {
-    let p = 0;
-    while (p < 2) {
-        print(n * 10 + p);
-        p = p + 1;
+print("\n\nnested loops");
+print("Expected:\n0\n1\n2\n10\n11\n12\n20\n21\n22");
+print("---------------------------");
+for (let row = 0; row < 3; row = row + 1) {
+    let col = 0;
+    while (col < 3) {
+        print(row * 10 + col);
+        col = col + 1;
     }
 }
 
-//loop with scoping
-let outer_var = 100;
-for (let loop_var = 0; loop_var < 3; loop_var = loop_var + 1) {
-    let inner_var = loop_var + outer_var;
-    print(inner_var);
+//function declaration and calls
+print("\n\nfunction declaration and calls");
+print("Expected:\n7\nHello, RJScript!");
+print("---------------------------");
+function add(a, b) {
+    return a + b;
+}
+print(add(3, 4));
+
+function greet(name) {
+    return "Hello, " + name + "!";
+}
+print(greet("RJScript"));
+
+//function with early return
+print("\n\nfunction with early return");
+print("Expected:\n42\n10");
+print("---------------------------");
+function absVal(n) {
+    if (n < 0) {
+        return -n;
+    }
+    return n;
+}
+print(absVal(-42));
+print(absVal(10));
+
+//recursive function
+print("\n\nrecursive function");
+print("Expected:\n120\n3628800");
+print("---------------------------");
+function factorial(n) {
+    if (n <= 1) {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
+print(factorial(5));
+print(factorial(10));
+
+//array literals
+print("\n\narray literals");
+print("Expected:\n[1, 2, 3, 4, 5]\n[]\n[1, two, true, 3.14]");
+print("---------------------------");
+let nums = [1, 2, 3, 4, 5];
+let empty = [];
+let mixed = [1, "two", true, 3.14];
+print(nums);
+print(empty);
+print(mixed);
+
+//array index access (0-based)
+print("\n\narray index access (0-based)");
+print("Expected:\n1\n3\n5");
+print("---------------------------");
+print(nums[0]);
+print(nums[2]);
+print(nums[4]);
+
+//negative indexing
+print("\n\nnegative indexing");
+print("Expected:\n5\n4");
+print("---------------------------");
+print(nums[-1]);
+print(nums[-2]);
+
+//array element assignment
+print("\n\narray element assignment");
+print("Expected:\n[99, 2, 3, 4, 5]");
+print("---------------------------");
+nums[0] = 99;
+print(nums);
+
+//multi-dimensional arrays
+print("\n\nmulti-dimensional arrays");
+print("Expected:\n[1, 2, 3]\n5\n[7, 8, 100]");
+print("---------------------------");
+let matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+print(matrix[0]);
+print(matrix[1][1]);
+matrix[2][2] = 100;
+print(matrix[2]);
+
+//heterogeneous array
+print("\n\nheterogeneous array");
+print("Expected:\n42\nhello\n2");
+print("---------------------------");
+let hetero = [42, "hello", true, [1, 2]];
+print(hetero[0]);
+print(hetero[1]);
+print(hetero[3][1]);
+
+//stdlib: push, pop
+print("\n\nstdlib: push, pop");
+print("Expected:\n[10, 20, 30, 40]\n40\n[10, 20, 30]\n[10, 20, 30, 50]");
+print("---------------------------");
+let arr = [10, 20, 30];
+push(arr, 40);
+print(arr);
+let popped = pop(arr);
+print(popped);
+print(arr);
+
+//stdlib: len
+print("\n\nstdlib: len");
+print("Expected:\n3\n5\n0");
+print("---------------------------");
+print(len(arr));
+print(len("Hello"));
+print(len(empty));
+
+//stdlib: typeof
+print("\n\nstdlib: typeof");
+print("Expected:\nint\nfloat\nstring\nbool\narray");
+print("---------------------------");
+print(typeof(42));
+print(typeof(3.14));
+print(typeof("hi"));
+print(typeof(true));
+print(typeof(nums));
+
+//stdlib: type conversion
+print("\n\nstdlib: type conversion");
+print("Expected:\n3\n123\n1\n10.0\n2.5\n42\n3.14\nfalse\ntrue\nfalse\ntrue");
+print("---------------------------");
+print(int(3.9));
+print(int("123"));
+print(int(true));
+print(float(10));
+print(float("2.5"));
+print(str(42));
+print(str(3.14));
+print(bool(0));
+print(bool(1));
+print(bool(""));
+print(bool("nonempty"));
+
+//stdlib: math functions
+print("\n\nstdlib: math functions");
+print("Expected:\n7\n7\n3\n8\n5.0\n1024\n4\n3\n3\n4");
+print("---------------------------");
+print(abs(-7));
+print(abs(7));
+print(min(3, 8));
+print(max(3, 8));
+print(sqrt(25));
+print(pow(2, 10));
+print(round(3.7));
+print(round(3.2));
+print(floor(3.9));
+print(ceil(3.1));
+
+//stdlib: random
+print("\n\nstdlib: random");
+print("Expected:\n<random float 0.0-1.0>\n<random int 1-100>");
+print("---------------------------");
+print(random());
+print(randomInt(1, 100));
+
+//stdlib: range
+print("\n\nstdlib: range");
+print("Expected:\n[0, 1, 2, 3, 4]\n[2, 3, 4, 5, 6]\n[0, 3, 6, 9]\n[10, 8, 6, 4, 2]");
+print("---------------------------");
+let r1 = range(5);
+print(r1);
+let r2 = range(2, 7);
+print(r2);
+let r3 = range(0, 10, 3);
+print(r3);
+let r4 = range(10, 0, -2);
+print(r4);
+
+//iterating over an array with for
+print("\n\niterating over an array with for");
+print("Expected:\napple\nbanana\ncherry");
+print("---------------------------");
+let fruits = ["apple", "banana", "cherry"];
+for (let idx = 0; idx < len(fruits); idx = idx + 1) {
+    print(fruits[idx]);
 }
 
-//while loop with complex condition
-let val1 = 0;
-let val2 = 10;
-while (val1 < val2) {
-    print(val1);
-    val1 = val1 + 2;
+//building an array dynamically
+print("\n\nbuilding an array dynamically");
+print("Expected:\n[1, 4, 9, 16, 25]");
+print("---------------------------");
+let squares = [];
+for (let n = 1; n <= 5; n = n + 1) {
+    push(squares, n * n);
+}
+print(squares);
+
+//nested functions and scoping
+print("\n\nnested functions and scoping");
+print("Expected:\n15");
+print("---------------------------");
+function outer_fn() {
+    let val = 10;
+    function inner_fn() {
+        return val + 5;
+    }
+    return inner_fn();
+}
+print(outer_fn());
+
+//fizzbuzz
+print("\n\nfizzbuzz");
+print("Expected:\n1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n17\nFizz\n19\nBuzz");
+print("---------------------------");
+for (let fb = 1; fb <= 20; fb = fb + 1) {
+    let divisBy3 = fb / 3;
+    let divisBy5 = fb / 5;
+    let mod3 = fb - int(divisBy3) * 3;
+    let mod5 = fb - int(divisBy5) * 5;
+
+    if (mod3 == 0) {
+        if (mod5 == 0) {
+            print("FizzBuzz");
+        } else {
+            print("Fizz");
+        }
+    } else if (mod5 == 0) {
+        print("Buzz");
+    } else {
+        print(fb);
+    }
 }
 
+//fibonacci sequence
+print("\n\nfibonacci sequence");
+print("Expected:\n[0, 1, 1, 2, 3, 5, 8, 13, 21, 34]");
+print("---------------------------");
+function fib(n) {
+    if (n <= 0) {
+        return 0;
+    }
+    if (n == 1) {
+        return 1;
+    }
+    return fib(n - 1) + fib(n - 2);
+}
+
+let fibNums = [];
+for (let fi = 0; fi < 10; fi = fi + 1) {
+    push(fibNums, fib(fi));
+}
+print(fibNums);
