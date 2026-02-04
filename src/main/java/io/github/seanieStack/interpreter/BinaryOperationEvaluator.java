@@ -45,24 +45,34 @@ public class BinaryOperationEvaluator {
         if (isString) {
             return String.valueOf(left) + right;
         }
-        return isFloat ? TypeConverter.toDouble(left) + TypeConverter.toDouble(right)
-                       : TypeConverter.toInt(left) + TypeConverter.toInt(right);
+        else if (isFloat) {
+            return TypeConverter.toDouble(left) + TypeConverter.toDouble(right);
+        }
+        else {
+            return TypeConverter.toInt(left) + TypeConverter.toInt(right);
+        }
     }
 
     /**
      * Evaluates subtraction for integers and floats.
      */
     private Object evaluateSubtraction(Object left, Object right, boolean isFloat) {
-        return isFloat ? TypeConverter.toDouble(left) - TypeConverter.toDouble(right)
-                       : TypeConverter.toInt(left) - TypeConverter.toInt(right);
+        if (isFloat) {
+            return TypeConverter.toDouble(left) - TypeConverter.toDouble(right);
+        } else {
+            return TypeConverter.toInt(left) - TypeConverter.toInt(right);
+        }
     }
 
     /**
      * Evaluates multiplication for integers and floats.
      */
     private Object evaluateMultiplication(Object left, Object right, boolean isFloat) {
-        return isFloat ? TypeConverter.toDouble(left) * TypeConverter.toDouble(right)
-                       : TypeConverter.toInt(left) * TypeConverter.toInt(right);
+        if (isFloat) {
+            return TypeConverter.toDouble(left) * TypeConverter.toDouble(right);
+        } else {
+            return TypeConverter.toInt(left) * TypeConverter.toInt(right);
+        }
     }
 
     /**

@@ -11,6 +11,7 @@ import io.github.seanieStack.constants.ErrorMessages;
 import io.github.seanieStack.environments.Environment;
 import io.github.seanieStack.stdlib.NativeFunction;
 import io.github.seanieStack.stdlib.StandardLibrary;
+import io.github.seanieStack.stdlib.TypeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -253,6 +254,134 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     @Override
     public Object visit(StringLiteralNode node) {
         return node.value();
+    }
+
+    /**
+     * Visits an array literal node and evaluates all elements into an ArrayList.
+     *
+     * @param node the array literal node containing element expressions
+     * @return an ArrayList containing the evaluated elements
+     */
+    @Override
+    public Object visit(ArrayLiteralNode node) {
+        ArrayList<Object> elements = new ArrayList<>();
+        for (ASTNode element : node.elements()) {
+            elements.add(element.accept(this));
+        }
+        return elements;
+    }
+
+    /**
+     * Visits an index access node and retrieves the element at the specified index.
+     * Supports negative indexing (Python-style) where -1 is the last element.
+     * Supports chained indexing for nested arrays.
+     *
+     * @param node the index access node containing the identifier and indices
+     * @return the value at the specified index position
+     * @throws RuntimeException if the variable is not an array or index is out of bounds
+     */
+    @Override
+    public Object visit(IndexAccessNode node) {
+        if (!env.hasVariable(node.identifier())) {
+            throw new RuntimeException(ErrorMessages.ERROR_UNDEFINED_VARIABLE + node.identifier());
+        }
+
+        Object current = env.get(node.identifier());
+
+        for (ASTNode indexNode : node.indices()) {
+            if (!(current instanceof List<?> list)) {
+                throw new RuntimeException("Cannot index into non-array value of type " + TypeUtils.getTypeName(current));
+            }
+
+            Object indexValue = indexNode.accept(this);
+
+            current = getNextListInChain(list, indexValue);
+        }
+
+        return current;
+    }
+
+    /**
+     * Visits an indexed assignment node and modifies the element at the specified index.
+     * Supports negative indexing and nested array assignment.
+     *
+     * @param node the indexed assignment node containing identifier, indices, and value
+     * @return the assigned value
+     * @throws RuntimeException if the variable is not an array or index is out of bounds
+     */
+    @Override
+    public Object visit(IndexedAssignmentNode node) {
+        if (!env.hasVariable(node.identifier())) {
+            throw new RuntimeException(ErrorMessages.ERROR_UNDEFINED_VARIABLE + node.identifier());
+        }
+
+        Object current = env.get(node.identifier());
+
+        // Navigate to the parent list for the final index
+        for (int i = 0; i < node.indices().size() - 1; i++) {
+            if (!(current instanceof List<?> list)) {
+                throw new RuntimeException("Cannot index into non-array value of type " + TypeUtils.getTypeName(current));
+            }
+
+            Object indexValue = node.indices().get(i).accept(this);
+
+            current = getNextListInChain(list, indexValue);
+        }
+
+        // Now current is the list we need to modify
+        if (!(current instanceof List<?>)) {
+            throw new RuntimeException("Cannot index into non-array value of type " + TypeUtils.getTypeName(current));
+        }
+
+        @SuppressWarnings("unchecked") //Checked above - reports unchecked due to wildcard check
+        List<Object> targetList = (List<Object>) current;
+        ASTNode lastIndexNode = node.indices().getLast();
+        Object lastIndexValue = lastIndexNode.accept(this);
+
+        if (!(lastIndexValue instanceof Integer)) {
+            throw new RuntimeException("Array index must be an integer, got " + TypeUtils.getTypeName(lastIndexValue));
+        }
+
+        int lastIndex = (Integer) lastIndexValue;
+        int actualLastIndex = resolveIndex(lastIndex, targetList.size());
+
+        if (actualLastIndex < 0 || actualLastIndex >= targetList.size()) {
+            throw new RuntimeException("Array index out of bounds: " + lastIndex + " for array of length " + targetList.size());
+        }
+
+        Object value = node.value().accept(this);
+        targetList.set(actualLastIndex, value);
+
+        return value;
+    }
+
+    private Object getNextListInChain(List<?> list, Object indexValue) {
+        Object current;
+        if (!(indexValue instanceof Integer)) {
+            throw new RuntimeException("Array index must be an integer, got " + TypeUtils.getTypeName(indexValue));
+        }
+
+        int index = (Integer) indexValue;
+        int actualIndex = resolveIndex(index, list.size());
+
+        if (actualIndex < 0 || actualIndex >= list.size()) {
+            throw new RuntimeException("Array index out of bounds: " + index + " for array of length " + list.size());
+        }
+
+        current = list.get(actualIndex);
+        return current;
+    }
+
+    /**
+     * Resolves a potentially negative index to an actual array index.
+     * Negative indices count from the end: -1 is the last element, -2 is second-to-last, etc.
+     *
+     * @param index the index (may be negative)
+     * @param length the length of the array
+     * @return the resolved non-negative index
+     */
+    private int resolveIndex(int index, int length) {
+        return index < 0 ? length + index : index;
     }
 
     /**

@@ -58,6 +58,32 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     }
 
     /**
+     * Visits an indexed assignment context and builds an IndexedAssignmentNode.
+     * Handles multi-dimensional array assignments like arr[0][1] = value.
+     *
+     * @param ctx the indexed assignment context from the parse tree
+     * @return an IndexedAssignmentNode containing the identifier, indices, and value
+     */
+    @Override
+    public ASTNode visitIndexedAssignment(RJScriptParser.IndexedAssignmentContext ctx) {
+        String identifier = ctx.IDENTIFIER().getText();
+
+        // All expressions except the last one are indices, the last is the value
+        List<RJScriptParser.ExpressionContext> allExpressions = ctx.expression();
+        List<ASTNode> indices = new ArrayList<>();
+
+        // All but the last expression are indices
+        for (int i = 0; i < allExpressions.size() - 1; i++) {
+            indices.add(visit(allExpressions.get(i)));
+        }
+
+        // The last expression is the value being assigned
+        ASTNode value = visit(allExpressions.getLast());
+
+        return new IndexedAssignmentNode(identifier, indices, value);
+    }
+
+    /**
      * Visits an if statement context and builds an IfStatementNode including
      * the condition, then block, all else-if clauses, and optional else block.
      *
@@ -344,8 +370,12 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
             String unquotedText = rawText.substring(1, rawText.length() - 1);
             String unescapedText = unescapeString(unquotedText);
             return new StringLiteralNode(unescapedText);
+        } else if (ctx.arrayLiteral() != null) {
+            return visit(ctx.arrayLiteral());
         } else if (ctx.functionCall() != null) {
             return visit(ctx.functionCall());
+        } else if (ctx.indexAccess() != null) {
+            return visit(ctx.indexAccess());
         } else if (ctx.IDENTIFIER() != null) {
             return new VariableNode(ctx.IDENTIFIER().getText());
         } else if (ctx.expression() != null) {
@@ -373,6 +403,38 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
         }
 
         return new FunctionCallNode(name, arguments);
+    }
+
+    /**
+     * Visits an array literal context and builds an ArrayLiteralNode.
+     *
+     * @param ctx the array literal context from the parse tree
+     * @return an ArrayLiteralNode containing all element expressions
+     */
+    @Override
+    public ASTNode visitArrayLiteral(RJScriptParser.ArrayLiteralContext ctx) {
+        List<ASTNode> elements = new ArrayList<>();
+        for (var expr : ctx.expression()) {
+            elements.add(visit(expr));
+        }
+        return new ArrayLiteralNode(elements);
+    }
+
+    /**
+     * Visits an index access context and builds an IndexAccessNode.
+     * Handles multi-dimensional access like arr[0][1].
+     *
+     * @param ctx the index access context from the parse tree
+     * @return an IndexAccessNode containing the identifier and all index expressions
+     */
+    @Override
+    public ASTNode visitIndexAccess(RJScriptParser.IndexAccessContext ctx) {
+        String identifier = ctx.IDENTIFIER().getText();
+        List<ASTNode> indices = new ArrayList<>();
+        for (var expr : ctx.expression()) {
+            indices.add(visit(expr));
+        }
+        return new IndexAccessNode(identifier, indices);
     }
 
     /**

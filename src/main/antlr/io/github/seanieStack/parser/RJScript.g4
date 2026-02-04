@@ -7,6 +7,7 @@ grammar RJScript;
 program : statement+ EOF ;
 
 statement : varDeclaration
+          | indexedAssignment
           | varAssignment
           | ifStatement
           | whileStatement
@@ -19,6 +20,8 @@ statement : varDeclaration
 varDeclaration : LET IDENTIFIER EQUALS expression SEMICOLON ;
 
 varAssignment : IDENTIFIER EQUALS expression SEMICOLON ;
+
+indexedAssignment : IDENTIFIER (LBRACKET expression RBRACKET)+ EQUALS expression SEMICOLON ;
 
 ifStatement : IF LPAREN expression RPAREN block elseIfStatement* elseStatement? ;
 
@@ -60,10 +63,16 @@ primary : INT
         | FLOAT
         | BOOLEAN
         | STRING_LITERAL
+        | arrayLiteral
         | functionCall
+        | indexAccess
         | IDENTIFIER
         | LPAREN expression RPAREN
         ;
+
+arrayLiteral : LBRACKET (expression (COMMA expression)*)? RBRACKET ;
+
+indexAccess : IDENTIFIER (LBRACKET expression RBRACKET)+ ;
 
 functionCall : IDENTIFIER LPAREN argumentList? RPAREN ;
 
@@ -92,6 +101,8 @@ LPAREN          : '(' ;
 RPAREN          : ')' ;
 LBRACE          : '{' ;
 RBRACE          : '}' ;
+LBRACKET        : '[' ;
+RBRACKET        : ']' ;
 SEMICOLON       : ';' ;
 COMMA           : ',' ;
 BOOLEAN         : 'true' | 'false' ;
