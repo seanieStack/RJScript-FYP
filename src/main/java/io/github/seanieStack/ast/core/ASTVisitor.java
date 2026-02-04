@@ -2,6 +2,7 @@ package io.github.seanieStack.ast.core;
 
 import io.github.seanieStack.ast.expressions.*;
 import io.github.seanieStack.ast.statements.*;
+import io.github.seanieStack.ast.statements.IndexedAssignmentNode;
 import io.github.seanieStack.ast.structural.BlockNode;
 import io.github.seanieStack.ast.structural.FunctionDeclarationNode;
 import io.github.seanieStack.ast.structural.ProgramNode;
@@ -29,6 +30,10 @@ public interface ASTVisitor<T> {
     T visit(VariableNode node);
     T visit(FloatLiteralNode floatLiteralNode);
     T visit(StringLiteralNode stringLiteralNode);
+    T visit(ArrayLiteralNode arrayLiteralNode);
+    T visit(IndexAccessNode indexAccessNode);
+
+    T visit(IndexedAssignmentNode indexedAssignmentNode);
 
     T visit(BlockNode node);
     T visit(FunctionDeclarationNode node);

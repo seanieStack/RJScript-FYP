@@ -45,6 +45,10 @@ public class StandardLibrary {
 
         // Utilities
         register(env, new RangeFunction());
+
+        // Array operations
+        register(env, new PushFunction());
+        register(env, new PopFunction());
     }
 
     private static void register(Environment env, NativeFunction function) {

@@ -1,11 +1,11 @@
 package io.github.seanieStack.stdlib;
 
+import java.util.List;
+
 /**
  * Utility methods for type operations in native functions.
  */
 public final class TypeUtils {
-
-    private TypeUtils() {}
 
     /**
      * Returns the RJScript type name for a value.
@@ -17,6 +17,7 @@ public final class TypeUtils {
             case Double v -> "float";
             case Boolean b -> "bool";
             case String s -> "string";
+            case List<?> l -> "array";
             default -> value.getClass().getSimpleName();
         };
     }
@@ -60,6 +61,15 @@ public final class TypeUtils {
     public static void requireString(Object value, String functionName) {
         if (!(value instanceof String)) {
             throw new RuntimeException(functionName + " requires a string argument, got " + getTypeName(value));
+        }
+    }
+
+    /**
+     * Requires an array value, throwing with context if not.
+     */
+    public static void requireArray(Object value, String functionName) {
+        if (!(value instanceof List<?>)) {
+            throw new RuntimeException(functionName + " requires an array argument, got " + getTypeName(value));
         }
     }
 }

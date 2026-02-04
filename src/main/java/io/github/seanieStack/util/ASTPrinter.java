@@ -342,4 +342,55 @@ public class ASTPrinter implements ASTVisitor<String> {
         return "returnStatement\n" +
             formatChild(node.expression().accept(this), true);
     }
+
+    @Override
+    public String visit(ArrayLiteralNode node) {
+        StringBuilder sb = new StringBuilder("arrayLiteral");
+        List<ASTNode> elements = node.elements();
+        if (elements.isEmpty()) {
+            sb.append(": []");
+        } else {
+            for (int i = 0; i < elements.size(); i++) {
+                boolean isLast = (i == elements.size() - 1);
+                sb.append("\n").append(formatChild(elements.get(i).accept(this), isLast));
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(IndexAccessNode node) {
+        StringBuilder sb = new StringBuilder("indexAccess");
+        sb.append("\n").append(formatChild("identifier: '" + node.identifier() + "'", false));
+        sb.append("\n").append(formatChild("indices", true));
+        List<ASTNode> indices = node.indices();
+        for (int i = 0; i < indices.size(); i++) {
+            boolean isLast = (i == indices.size() - 1);
+            sb.append("\n").append(formatChild(
+                formatChild(indices.get(i).accept(this), true),
+                isLast
+            ));
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(IndexedAssignmentNode node) {
+        StringBuilder sb = new StringBuilder("indexedAssignment");
+        sb.append("\n").append(formatChild("identifier: '" + node.identifier() + "'", false));
+        sb.append("\n").append(formatChild("indices", false));
+        List<ASTNode> indices = node.indices();
+        for (int i = 0; i < indices.size(); i++) {
+            boolean isLast = (i == indices.size() - 1);
+            sb.append("\n").append(formatChild(
+                formatChild(indices.get(i).accept(this), true),
+                isLast
+            ));
+        }
+        sb.append("\n").append(formatChild(
+            "value\n" + formatChild(node.value().accept(this), true),
+            true
+        ));
+        return sb.toString();
+    }
 }
