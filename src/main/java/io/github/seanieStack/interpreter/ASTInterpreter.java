@@ -9,6 +9,7 @@ import io.github.seanieStack.ast.structural.FunctionDeclarationNode;
 import io.github.seanieStack.ast.structural.ProgramNode;
 import io.github.seanieStack.constants.ErrorMessages;
 import io.github.seanieStack.environments.Environment;
+import io.github.seanieStack.stdlib.BuiltinModuleRegistry;
 import io.github.seanieStack.stdlib.NativeFunction;
 import io.github.seanieStack.stdlib.StandardLibrary;
 import io.github.seanieStack.stdlib.TypeUtils;
@@ -43,6 +44,20 @@ public class ASTInterpreter implements ASTVisitor<Object> {
             result = statement.accept(this);
         }
         return result;
+    }
+
+    /**
+     * Visits an import statement node, resolves the function from the builtin module
+     * registry, and registers it into the current environment.
+     *
+     * @param node the import statement node containing the function and module names
+     * @return null (import statements don't produce a value)
+     */
+    @Override
+    public Object visit(ImportStatementNode node) {
+        NativeFunction function = BuiltinModuleRegistry.getFunction(node.moduleName(), node.functionName());
+        env.putFunction(node.functionName(), function);
+        return null;
     }
 
     /**

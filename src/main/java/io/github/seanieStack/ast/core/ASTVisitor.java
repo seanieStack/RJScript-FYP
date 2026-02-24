@@ -14,6 +14,7 @@ import io.github.seanieStack.ast.structural.ProgramNode;
  * @param <T> the return type of visit operations
  */
 public interface ASTVisitor<T> {
+    T visit(ImportStatementNode node);
     T visit(VarDeclarationNode node);
     T visit(VarAssignmentNode node);
     T visit(IfStatementNode node);

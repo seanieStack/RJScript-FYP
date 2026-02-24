@@ -15,21 +15,31 @@ public class IntFunction implements NativeFunction {
     public Object call(List<Object> arguments) {
         Object value = arguments.getFirst();
 
-        if (value instanceof Integer) {
-            return value;
-        } else if (value instanceof Double d) {
-            return d.intValue();
-        } else if (value instanceof String s) {
-            try {
-                if (s.contains(".")) {
-                    return (int) Double.parseDouble(s);
-                }
-                return Integer.parseInt(s);
-            } catch (NumberFormatException e) {
-                throw new RuntimeException("Cannot convert string '" + s + "' to int");
+        switch (value) {
+            case Integer i -> {
+                return value;
             }
-        } else if (value instanceof Boolean b) {
-            return b ? 1 : 0;
+            case Double d -> {
+                if (d > Integer.MAX_VALUE || d < Integer.MIN_VALUE) {
+                    throw new RuntimeException("Cannot convert " + d + " to int: value out of range");
+                }
+                return d.intValue();
+            }
+            case String s -> {
+                try {
+                    if (s.contains(".")) {
+                        return (int) Double.parseDouble(s);
+                    }
+                    return Integer.parseInt(s);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Cannot convert string '" + s + "' to int");
+                }
+            }
+            case Boolean b -> {
+                return b ? 1 : 0;
+            }
+            case null, default -> {
+            }
         }
 
         throw new RuntimeException("Cannot convert " + TypeUtils.getTypeName(value) + " to int");

@@ -43,6 +43,11 @@ public class ASTPrinter implements ASTVisitor<String> {
     }
 
     @Override
+    public String visit(ImportStatementNode node) {
+        return "import: " + node.functionName() + " from " + node.moduleName();
+    }
+
+    @Override
     public String visit(ProgramNode node) {
         StringBuilder sb = new StringBuilder("program");
         List<ASTNode> statements = node.statements();

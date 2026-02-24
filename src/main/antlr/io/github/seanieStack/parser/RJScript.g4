@@ -6,7 +6,8 @@ grammar RJScript;
 
 program : statement+ EOF ;
 
-statement : varDeclaration
+statement : importStatement
+          | varDeclaration
           | indexedAssignment
           | varAssignment
           | ifStatement
@@ -16,6 +17,8 @@ statement : varDeclaration
           | returnStatement
           | expressionStatement
           ;
+
+importStatement : IMPORT IDENTIFIER FROM IDENTIFIER SEMICOLON ;
 
 varDeclaration : LET IDENTIFIER EQUALS expression SEMICOLON ;
 
@@ -79,6 +82,8 @@ functionCall : IDENTIFIER LPAREN argumentList? RPAREN ;
 argumentList : expression (COMMA expression)* ;
 
 //lexer rules
+IMPORT          : 'import' ;
+FROM            : 'from' ;
 LET             : 'let' ;
 IF              : 'if' ;
 ELSE            : 'else' ;

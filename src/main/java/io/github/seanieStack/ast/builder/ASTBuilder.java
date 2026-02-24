@@ -30,6 +30,19 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     }
 
     /**
+     * Visits an import statement context and builds an ImportStatementNode.
+     *
+     * @param ctx the import statement context from the parse tree
+     * @return an ImportStatementNode containing the function name and module name
+     */
+    @Override
+    public ASTNode visitImportStatement(RJScriptParser.ImportStatementContext ctx) {
+        String functionName = ctx.IDENTIFIER(0).getText();
+        String moduleName = ctx.IDENTIFIER(1).getText();
+        return new ImportStatementNode(functionName, moduleName);
+    }
+
+    /**
      * Visits a variable declaration context and builds a VarDeclarationNode.
      *
      * @param ctx the variable declaration context from the parse tree
