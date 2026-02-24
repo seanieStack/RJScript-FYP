@@ -1,0 +1,68 @@
+import readFile from io;
+import split from strings;
+import charAt from strings;
+import substring from strings;
+import now from time;
+
+let content = readFile("examples/adventOfCode2025/input.txt");
+let lines = split(content, "\n");
+
+let t0 = now();
+
+// Part 1
+let cur = 50;
+let count = 0;
+
+for (let i = 0; i < len(lines); i = i + 1) {
+    let line = lines[i];
+    if (len(line) > 0) {
+        let dir = charAt(line, 0);
+        let num = int(substring(line, 1, len(line)));
+
+        if (dir == "L") {
+            num = 0 - num;
+        }
+        cur = cur + num;
+        cur = cur - floor(float(cur) / 100) * 100;
+
+        if (cur == 0) {
+            count = count + 1;
+        }
+    }
+}
+
+let t1 = now();
+print("Part 1: " + str(count) + " (" + str(t1 - t0) + "ms)");
+
+// Part 2
+cur = 50;
+count = 0;
+
+for (let i = 0; i < len(lines); i = i + 1) {
+    let line = lines[i];
+    if (len(line) > 0) {
+        let dir = charAt(line, 0);
+        let num = int(substring(line, 1, len(line)));
+
+        if (dir == "L") {
+            num = 0 - num;
+        }
+
+        let start = cur;
+        let end = cur + num;
+        let pass_zero = 0;
+
+        if (num > 0) {
+            pass_zero = floor(float(end) / 100) - floor(float(start) / 100);
+        } else {
+            pass_zero = floor(float(start) / 100) - floor(float(end) / 100);
+        }
+
+        count = count + pass_zero;
+        cur = end - floor(float(end) / 100) * 100;
+    }
+}
+
+let t2 = now();
+print("Part 2: " + str(count) + " (" + str(t2 - t1) + "ms)");
+print("Total: " + str(t2 - t0) + "ms");
