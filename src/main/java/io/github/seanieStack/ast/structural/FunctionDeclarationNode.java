@@ -11,11 +11,15 @@ import java.util.List;
  * @param name the name of the function
  * @param parameters the list of parameter names
  * @param body the block containing the function's statements
+ * @param line the source line number
+ * @param column the source column number
  */
 public record FunctionDeclarationNode(
         String name,
         List<String> parameters,
-        BlockNode body
+        BlockNode body,
+        int line,
+        int column
 ) implements ASTNode {
 
     @Override

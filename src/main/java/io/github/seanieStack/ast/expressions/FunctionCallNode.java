@@ -10,10 +10,14 @@ import java.util.List;
  *
  * @param name the name of the function to call
  * @param arguments the list of argument expressions passed to the function
+ * @param line the source line number
+ * @param column the source column number
  */
 public record FunctionCallNode(
         String name,
-        List<ASTNode> arguments
+        List<ASTNode> arguments,
+        int line,
+        int column
 ) implements ASTNode {
 
     @Override

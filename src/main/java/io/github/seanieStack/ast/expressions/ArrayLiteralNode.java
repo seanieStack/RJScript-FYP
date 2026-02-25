@@ -10,8 +10,10 @@ import java.util.List;
  * Example: [1, 2, 3] or []
  *
  * @param elements the list of expressions that make up the array elements
+ * @param line the source line number
+ * @param column the source column number
  */
-public record ArrayLiteralNode(List<ASTNode> elements) implements ASTNode {
+public record ArrayLiteralNode(List<ASTNode> elements, int line, int column) implements ASTNode {
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {

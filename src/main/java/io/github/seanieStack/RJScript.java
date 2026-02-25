@@ -5,6 +5,8 @@ import io.github.seanieStack.ast.core.ASTNode;
 import io.github.seanieStack.ast.structural.ProgramNode;
 import io.github.seanieStack.constants.Constants;
 import io.github.seanieStack.constants.ErrorMessages;
+import io.github.seanieStack.errors.ErrorReporter;
+import io.github.seanieStack.errors.RJScriptError;
 import io.github.seanieStack.interpreter.ASTInterpreter;
 import io.github.seanieStack.parser.RJScriptLexer;
 import io.github.seanieStack.parser.RJScriptParser;
@@ -14,12 +16,29 @@ import org.antlr.v4.runtime.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * Main entry point for the RJScript interpreter.
  * Supports file execution and REPL mode.
  */
 public class RJScript {
+
+    private static final Logger logger = Logger.getLogger(RJScript.class.getName());
+
+    static {
+        try {
+            FileHandler fh = new FileHandler("rjscript.log", true);
+            fh.setFormatter(new SimpleFormatter());
+            logger.addHandler(fh);
+            logger.setUseParentHandlers(false);
+        } catch (IOException e) {
+            // fallback: log to stderr if file can't be opened
+        }
+    }
+
     /**
      * Starts the interpreter. Runs the file if provided, otherwise starts REPL.
      *
@@ -64,8 +83,16 @@ public class RJScript {
             ASTInterpreter interpreter = new ASTInterpreter();
             ast.accept(interpreter);
 
+        } catch (RJScriptError e) {
+            System.err.println(ErrorReporter.format(e, filePath));
+            System.exit(Constants.EXIT_CODE_ERROR);
         } catch (IOException e) {
             System.err.println(ErrorMessages.ERROR_READING_FILE_PREFIX + e.getMessage());
+            System.exit(Constants.EXIT_CODE_ERROR);
+        } catch (Exception e) {
+            logger.severe("Internal error: " + e.getMessage());
+            logger.throwing(RJScript.class.getName(), "runFile", e);
+            System.err.println("An internal error occurred. See rjscript.log for details.");
             System.exit(Constants.EXIT_CODE_ERROR);
         }
     }
@@ -127,8 +154,12 @@ public class RJScript {
                         } else {
                             System.err.println(ErrorMessages.ERROR_SYNTAX_ERROR);
                         }
+                    } catch (RJScriptError e) {
+                        System.err.println(ErrorReporter.format(e));
                     } catch (Exception e) {
-                        System.err.println(ErrorMessages.ERROR_PREFIX + e.getMessage());
+                        logger.severe("Internal error: " + e.getMessage());
+                        logger.throwing(RJScript.class.getName(), "runRepl", e);
+                        System.err.println("An internal error occurred. See rjscript.log for details.");
                     }
                 }
 

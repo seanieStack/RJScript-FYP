@@ -26,7 +26,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitProgram(RJScriptParser.ProgramContext ctx) {
-        return new ProgramNode(ctx.statement().stream().map(this::visit).toList());
+        return new ProgramNode(ctx.statement().stream().map(this::visit).toList(), 1, 0);
     }
 
     /**
@@ -39,7 +39,9 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     public ASTNode visitImportStatement(RJScriptParser.ImportStatementContext ctx) {
         String functionName = ctx.IDENTIFIER(0).getText();
         String moduleName = ctx.IDENTIFIER(1).getText();
-        return new ImportStatementNode(functionName, moduleName);
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
+        return new ImportStatementNode(functionName, moduleName, line, col);
     }
 
     /**
@@ -50,9 +52,13 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitVarDeclaration(RJScriptParser.VarDeclarationContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         return new VarDeclarationNode(
                 ctx.IDENTIFIER().getText(),
-                visit(ctx.expression())
+                visit(ctx.expression()),
+                line,
+                col
         );
     }
 
@@ -64,9 +70,13 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitVarAssignment(RJScriptParser.VarAssignmentContext ctx){
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         return new VarAssignmentNode(
                 ctx.IDENTIFIER().getText(),
-                visit(ctx.expression())
+                visit(ctx.expression()),
+                line,
+                col
         );
     }
 
@@ -80,6 +90,8 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitIndexedAssignment(RJScriptParser.IndexedAssignmentContext ctx) {
         String identifier = ctx.IDENTIFIER().getText();
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
 
         // All expressions except the last one are indices, the last is the value
         List<RJScriptParser.ExpressionContext> allExpressions = ctx.expression();
@@ -93,7 +105,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
         // The last expression is the value being assigned
         ASTNode value = visit(allExpressions.getLast());
 
-        return new IndexedAssignmentNode(identifier, indices, value);
+        return new IndexedAssignmentNode(identifier, indices, value, line, col);
     }
 
     /**
@@ -105,6 +117,8 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitIfStatement(RJScriptParser.IfStatementContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         ASTNode condition = visit(ctx.expression());
         BlockNode thenBlock = (BlockNode) visit(ctx.block());
 
@@ -120,7 +134,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
             elseBlock = (BlockNode) visit(ctx.elseStatement().block());
         }
 
-        return new IfStatementNode(condition, thenBlock, elseIfClauses, elseBlock);
+        return new IfStatementNode(condition, thenBlock, elseIfClauses, elseBlock, line, col);
     }
 
     /**
@@ -132,9 +146,11 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitWhileStatement(RJScriptParser.WhileStatementContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         ASTNode condition = visit(ctx.expression());
         BlockNode body = (BlockNode) visit(ctx.block());
-        return new WhileStatementNode(condition, body);
+        return new WhileStatementNode(condition, body, line, col);
     }
 
     /**
@@ -146,11 +162,13 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitForStatement(RJScriptParser.ForStatementContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         ASTNode initialization = visit(ctx.forInit());
         ASTNode condition = visit(ctx.expression());
         ASTNode update = visit(ctx.forUpdate());
         BlockNode body = (BlockNode) visit(ctx.block());
-        return new ForStatementNode(initialization, condition, update, body);
+        return new ForStatementNode(initialization, condition, update, body, line, col);
     }
 
     /**
@@ -162,15 +180,21 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitForInit(RJScriptParser.ForInitContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         if (ctx.LET() != null) {
             return new VarDeclarationNode(
                     ctx.IDENTIFIER().getText(),
-                    visit(ctx.expression())
+                    visit(ctx.expression()),
+                    line,
+                    col
             );
         } else {
             return new VarAssignmentNode(
                     ctx.IDENTIFIER().getText(),
-                    visit(ctx.expression())
+                    visit(ctx.expression()),
+                    line,
+                    col
             );
         }
     }
@@ -183,9 +207,13 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitForUpdate(RJScriptParser.ForUpdateContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         return new VarAssignmentNode(
                 ctx.IDENTIFIER().getText(),
-                visit(ctx.expression())
+                visit(ctx.expression()),
+                line,
+                col
         );
     }
 
@@ -198,6 +226,8 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitFunctionDeclaration(RJScriptParser.FunctionDeclarationContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         String name = ctx.IDENTIFIER().getText();
 
         List<String> parameters = new ArrayList<>();
@@ -209,7 +239,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
 
         BlockNode body = (BlockNode) visit(ctx.block());
 
-        return new FunctionDeclarationNode(name, parameters, body);
+        return new FunctionDeclarationNode(name, parameters, body, line, col);
     }
 
     /**
@@ -220,7 +250,9 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitReturnStatement(RJScriptParser.ReturnStatementContext ctx) {
-        return new ReturnStatementNode(visit(ctx.expression()));
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
+        return new ReturnStatementNode(visit(ctx.expression()), line, col);
     }
 
     /**
@@ -232,7 +264,9 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitBlock(RJScriptParser.BlockContext ctx) {
-        return new BlockNode(ctx.statement().stream().map(this::visit).toList());
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
+        return new BlockNode(ctx.statement().stream().map(this::visit).toList(), line, col);
     }
 
     /**
@@ -243,7 +277,9 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitExpressionStatement(RJScriptParser.ExpressionStatementContext ctx) {
-        return new ExpressionStatementNode(visit(ctx.expression()));
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
+        return new ExpressionStatementNode(visit(ctx.expression()), line, col);
     }
 
     /**
@@ -270,6 +306,8 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
         ASTNode left = visit(ctx.additive(0));
 
         if (ctx.additive().size() > 1) {
+            int line = ctx.getStart().getLine();
+            int col  = ctx.getStart().getCharPositionInLine();
             String operator = ctx.getChild(1).getText();
             ASTNode right = visit(ctx.additive(1));
 
@@ -283,7 +321,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
                 default -> throw new RuntimeException("Unknown comparison operator: " + operator);
             };
 
-            return new BinaryOpNode(op, left, right);
+            return new BinaryOpNode(op, left, right, line, col);
         }
 
         return left;
@@ -300,6 +338,8 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitAdditive(RJScriptParser.AdditiveContext ctx) {
         ASTNode result = visit(ctx.multiplicative(0));
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
 
         // Process operators left-to-right to ensure left-associativity (e.g., a - b + c means (a - b) + c)
         for (int i = 0; i < ctx.multiplicative().size() - 1; i++) {
@@ -311,7 +351,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
                     BinaryOpNode.Operator.ADD :
                     BinaryOpNode.Operator.SUBTRACT;
 
-            result = new BinaryOpNode(op, result, right);
+            result = new BinaryOpNode(op, result, right, line, col);
         }
 
         return result;
@@ -327,6 +367,8 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitMultiplicative(RJScriptParser.MultiplicativeContext ctx) {
         ASTNode result = visit(ctx.unary(0));
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
 
         // Process operators left-to-right to ensure left-associativity (e.g., a / b * c means (a / b) * c)
         for (int i = 0; i < ctx.unary().size() - 1; i++) {
@@ -338,7 +380,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
                     BinaryOpNode.Operator.MULTIPLY :
                     BinaryOpNode.Operator.DIVIDE;
 
-            result = new BinaryOpNode(op, result, right);
+            result = new BinaryOpNode(op, result, right, line, col);
         }
 
         return result;
@@ -354,8 +396,10 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitUnary(RJScriptParser.UnaryContext ctx) {
         if (ctx.MINUS() != null) {
+            int line = ctx.getStart().getLine();
+            int col  = ctx.getStart().getCharPositionInLine();
             ASTNode operand = visit(ctx.unary());
-            return new UnaryOpNode(UnaryOpNode.Operator.NEGATE, operand);
+            return new UnaryOpNode(UnaryOpNode.Operator.NEGATE, operand, line, col);
         } else {
             return visit(ctx.primary());
         }
@@ -372,17 +416,19 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitPrimary(RJScriptParser.PrimaryContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         if (ctx.INT() != null) {
-            return new IntLiteralNode(Integer.parseInt(ctx.INT().getText()));
+            return new IntLiteralNode(Integer.parseInt(ctx.INT().getText()), line, col);
         } else if (ctx.FLOAT() != null) {
-            return new FloatLiteralNode(Double.parseDouble((ctx.FLOAT().getText())));
+            return new FloatLiteralNode(Double.parseDouble((ctx.FLOAT().getText())), line, col);
         } else if (ctx.BOOLEAN() != null) {
-            return new BoolLiteralNode(Boolean.parseBoolean(ctx.BOOLEAN().getText()));
+            return new BoolLiteralNode(Boolean.parseBoolean(ctx.BOOLEAN().getText()), line, col);
         } else if (ctx.STRING_LITERAL() != null) {
             String rawText = ctx.STRING_LITERAL().getText();
             String unquotedText = rawText.substring(1, rawText.length() - 1);
             String unescapedText = unescapeString(unquotedText);
-            return new StringLiteralNode(unescapedText);
+            return new StringLiteralNode(unescapedText, line, col);
         } else if (ctx.arrayLiteral() != null) {
             return visit(ctx.arrayLiteral());
         } else if (ctx.functionCall() != null) {
@@ -390,7 +436,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
         } else if (ctx.indexAccess() != null) {
             return visit(ctx.indexAccess());
         } else if (ctx.IDENTIFIER() != null) {
-            return new VariableNode(ctx.IDENTIFIER().getText());
+            return new VariableNode(ctx.IDENTIFIER().getText(), line, col);
         } else if (ctx.expression() != null) {
             return visit(ctx.expression());
         }
@@ -406,6 +452,8 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitFunctionCall(RJScriptParser.FunctionCallContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         String name = ctx.IDENTIFIER().getText();
 
         List<ASTNode> arguments = new ArrayList<>();
@@ -415,7 +463,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
             }
         }
 
-        return new FunctionCallNode(name, arguments);
+        return new FunctionCallNode(name, arguments, line, col);
     }
 
     /**
@@ -426,11 +474,13 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitArrayLiteral(RJScriptParser.ArrayLiteralContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         List<ASTNode> elements = new ArrayList<>();
         for (var expr : ctx.expression()) {
             elements.add(visit(expr));
         }
-        return new ArrayLiteralNode(elements);
+        return new ArrayLiteralNode(elements, line, col);
     }
 
     /**
@@ -442,12 +492,14 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitIndexAccess(RJScriptParser.IndexAccessContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
         String identifier = ctx.IDENTIFIER().getText();
         List<ASTNode> indices = new ArrayList<>();
         for (var expr : ctx.expression()) {
             indices.add(visit(expr));
         }
-        return new IndexAccessNode(identifier, indices);
+        return new IndexAccessNode(identifier, indices, line, col);
     }
 
     /**

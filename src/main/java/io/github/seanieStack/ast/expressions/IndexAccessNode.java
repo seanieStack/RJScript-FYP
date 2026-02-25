@@ -12,8 +12,10 @@ import java.util.List;
  *
  * @param identifier the name of the array variable
  * @param indices the list of index expressions (one per dimension)
+ * @param line the source line number
+ * @param column the source column number
  */
-public record IndexAccessNode(String identifier, List<ASTNode> indices) implements ASTNode {
+public record IndexAccessNode(String identifier, List<ASTNode> indices, int line, int column) implements ASTNode {
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {

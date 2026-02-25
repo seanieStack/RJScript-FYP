@@ -9,10 +9,14 @@ import io.github.seanieStack.ast.core.ASTVisitor;
  *
  * @param condition the loop condition evaluated before each iteration
  * @param body the block to execute on each iteration
+ * @param line the source line number
+ * @param column the source column number
  */
 public record WhileStatementNode(
         ASTNode condition,
-        BlockNode body
+        BlockNode body,
+        int line,
+        int column
 ) implements ASTNode {
 
     @Override

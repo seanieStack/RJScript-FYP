@@ -8,10 +8,14 @@ import io.github.seanieStack.ast.core.ASTVisitor;
  *
  * @param identifier the name of the variable being assigned
  * @param expression the new value expression to assign to the variable
+ * @param line the source line number
+ * @param column the source column number
  */
 public record VarAssignmentNode(
         String identifier,
-        ASTNode expression
+        ASTNode expression,
+        int line,
+        int column
 ) implements ASTNode {
 
     @Override

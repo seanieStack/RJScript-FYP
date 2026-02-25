@@ -8,10 +8,14 @@ import io.github.seanieStack.ast.core.ASTVisitor;
  *
  * @param operator the unary operator to apply
  * @param operand the expression to apply the operator to
+ * @param line the source line number
+ * @param column the source column number
  */
 public record UnaryOpNode(
         Operator operator,
-        ASTNode operand
+        ASTNode operand,
+        int line,
+        int column
 ) implements ASTNode {
 
     public enum Operator {

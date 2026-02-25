@@ -13,11 +13,15 @@ import java.util.List;
  * @param identifier the name of the array variable
  * @param indices the list of index expressions (one per dimension)
  * @param value the expression to assign to the indexed position
+ * @param line the source line number
+ * @param column the source column number
  */
 public record IndexedAssignmentNode(
         String identifier,
         List<ASTNode> indices,
-        ASTNode value
+        ASTNode value,
+        int line,
+        int column
 ) implements ASTNode {
 
     @Override

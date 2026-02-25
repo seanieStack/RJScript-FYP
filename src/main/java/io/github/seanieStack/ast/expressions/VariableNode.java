@@ -7,8 +7,10 @@ import io.github.seanieStack.ast.core.ASTVisitor;
  * Variable reference expression that reads the value of a named variable.
  *
  * @param name the name of the variable to reference
+ * @param line the source line number
+ * @param column the source column number
  */
-public record VariableNode(String name) implements ASTNode {
+public record VariableNode(String name, int line, int column) implements ASTNode {
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {

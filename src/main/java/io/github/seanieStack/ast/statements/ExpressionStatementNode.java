@@ -8,8 +8,10 @@ import io.github.seanieStack.ast.core.ASTVisitor;
  * Used when an expression appears as a standalone statement (e.g., function calls).
  *
  * @param expression the expression to evaluate
+ * @param line the source line number
+ * @param column the source column number
  */
-public record ExpressionStatementNode(ASTNode expression) implements ASTNode {
+public record ExpressionStatementNode(ASTNode expression, int line, int column) implements ASTNode {
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {

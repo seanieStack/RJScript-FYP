@@ -9,6 +9,8 @@ import io.github.seanieStack.ast.structural.FunctionDeclarationNode;
 import io.github.seanieStack.ast.structural.ProgramNode;
 import io.github.seanieStack.constants.ErrorMessages;
 import io.github.seanieStack.environments.Environment;
+import io.github.seanieStack.errors.ErrorType;
+import io.github.seanieStack.errors.RJScriptError;
 import io.github.seanieStack.stdlib.BuiltinModuleRegistry;
 import io.github.seanieStack.stdlib.NativeFunction;
 import io.github.seanieStack.stdlib.StandardLibrary;
@@ -55,8 +57,12 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(ImportStatementNode node) {
-        NativeFunction function = BuiltinModuleRegistry.getFunction(node.moduleName(), node.functionName());
-        env.putFunction(node.functionName(), function);
+        try {
+            NativeFunction function = BuiltinModuleRegistry.getFunction(node.moduleName(), node.functionName());
+            env.putFunction(node.functionName(), function);
+        } catch (RuntimeException e) {
+            throw new RJScriptError(ErrorType.IMPORT, e.getMessage(), node.line(), node.column());
+        }
         return null;
     }
 
@@ -199,7 +205,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     public Object visit(BinaryOpNode node) {
         Object left = node.left().accept(this);
         Object right = node.right().accept(this);
-        return binaryOpEvaluator.evaluate(node.operator(), left, right);
+        return binaryOpEvaluator.evaluate(node.operator(), left, right, node.line(), node.column());
     }
 
     /**
@@ -219,7 +225,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
                 return -TypeConverter.toInt(operand);
             }
         }
-        throw new RuntimeException("Unknown unary operator: " + node.operator());
+        throw new RJScriptError(ErrorType.RUNTIME, "Unknown unary operator: " + node.operator(), node.line(), node.column());
     }
 
     /**
@@ -250,14 +256,14 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      *
      * @param node the variable node containing the variable name
      * @return the current value of the variable
-     * @throws RuntimeException if the variable is not defined in the environment
+     * @throws RJScriptError if the variable is not defined in the environment
      */
     @Override
     public Object visit(VariableNode node) {
         if (env.hasVariable(node.name())) {
             return env.get(node.name());
         } else {
-            throw new RuntimeException(ErrorMessages.ERROR_UNDEFINED_VARIABLE + node.name());
+            throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_UNDEFINED_VARIABLE + node.name(), node.line(), node.column());
         }
     }
 
@@ -293,24 +299,24 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      *
      * @param node the index access node containing the identifier and indices
      * @return the value at the specified index position
-     * @throws RuntimeException if the variable is not an array or index is out of bounds
+     * @throws RJScriptError if the variable is not an array or index is out of bounds
      */
     @Override
     public Object visit(IndexAccessNode node) {
         if (!env.hasVariable(node.identifier())) {
-            throw new RuntimeException(ErrorMessages.ERROR_UNDEFINED_VARIABLE + node.identifier());
+            throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_UNDEFINED_VARIABLE + node.identifier(), node.line(), node.column());
         }
 
         Object current = env.get(node.identifier());
 
         for (ASTNode indexNode : node.indices()) {
             if (!(current instanceof List<?> list)) {
-                throw new RuntimeException("Cannot index into non-array value of type " + TypeUtils.getTypeName(current));
+                throw new RJScriptError(ErrorType.RUNTIME, "Cannot index into non-array value of type " + TypeUtils.getTypeName(current), node.line(), node.column());
             }
 
             Object indexValue = indexNode.accept(this);
 
-            current = getNextListInChain(list, indexValue);
+            current = getNextListInChain(list, indexValue, node.line(), node.column());
         }
 
         return current;
@@ -322,12 +328,12 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      *
      * @param node the indexed assignment node containing identifier, indices, and value
      * @return the assigned value
-     * @throws RuntimeException if the variable is not an array or index is out of bounds
+     * @throws RJScriptError if the variable is not an array or index is out of bounds
      */
     @Override
     public Object visit(IndexedAssignmentNode node) {
         if (!env.hasVariable(node.identifier())) {
-            throw new RuntimeException(ErrorMessages.ERROR_UNDEFINED_VARIABLE + node.identifier());
+            throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_UNDEFINED_VARIABLE + node.identifier(), node.line(), node.column());
         }
 
         Object current = env.get(node.identifier());
@@ -335,17 +341,17 @@ public class ASTInterpreter implements ASTVisitor<Object> {
         // Navigate to the parent list for the final index
         for (int i = 0; i < node.indices().size() - 1; i++) {
             if (!(current instanceof List<?> list)) {
-                throw new RuntimeException("Cannot index into non-array value of type " + TypeUtils.getTypeName(current));
+                throw new RJScriptError(ErrorType.RUNTIME, "Cannot index into non-array value of type " + TypeUtils.getTypeName(current), node.line(), node.column());
             }
 
             Object indexValue = node.indices().get(i).accept(this);
 
-            current = getNextListInChain(list, indexValue);
+            current = getNextListInChain(list, indexValue, node.line(), node.column());
         }
 
         // Now current is the list we need to modify
         if (!(current instanceof List<?>)) {
-            throw new RuntimeException("Cannot index into non-array value of type " + TypeUtils.getTypeName(current));
+            throw new RJScriptError(ErrorType.RUNTIME, "Cannot index into non-array value of type " + TypeUtils.getTypeName(current), node.line(), node.column());
         }
 
         @SuppressWarnings("unchecked") //Checked above - reports unchecked due to wildcard check
@@ -354,14 +360,14 @@ public class ASTInterpreter implements ASTVisitor<Object> {
         Object lastIndexValue = lastIndexNode.accept(this);
 
         if (!(lastIndexValue instanceof Integer)) {
-            throw new RuntimeException("Array index must be an integer, got " + TypeUtils.getTypeName(lastIndexValue));
+            throw new RJScriptError(ErrorType.RUNTIME, "Array index must be an integer, got " + TypeUtils.getTypeName(lastIndexValue), node.line(), node.column());
         }
 
         int lastIndex = (Integer) lastIndexValue;
         int actualLastIndex = resolveIndex(lastIndex, targetList.size());
 
         if (actualLastIndex < 0 || actualLastIndex >= targetList.size()) {
-            throw new RuntimeException("Array index out of bounds: " + lastIndex + " for array of length " + targetList.size());
+            throw new RJScriptError(ErrorType.RUNTIME, "Array index out of bounds: " + lastIndex + " for array of length " + targetList.size(), node.line(), node.column());
         }
 
         Object value = node.value().accept(this);
@@ -370,17 +376,17 @@ public class ASTInterpreter implements ASTVisitor<Object> {
         return value;
     }
 
-    private Object getNextListInChain(List<?> list, Object indexValue) {
+    private Object getNextListInChain(List<?> list, Object indexValue, int line, int column) {
         Object current;
         if (!(indexValue instanceof Integer)) {
-            throw new RuntimeException("Array index must be an integer, got " + TypeUtils.getTypeName(indexValue));
+            throw new RJScriptError(ErrorType.RUNTIME, "Array index must be an integer, got " + TypeUtils.getTypeName(indexValue), line, column);
         }
 
         int index = (Integer) indexValue;
         int actualIndex = resolveIndex(index, list.size());
 
         if (actualIndex < 0 || actualIndex >= list.size()) {
-            throw new RuntimeException("Array index out of bounds: " + index + " for array of length " + list.size());
+            throw new RJScriptError(ErrorType.RUNTIME, "Array index out of bounds: " + index + " for array of length " + list.size(), line, column);
         }
 
         current = list.get(actualIndex);
@@ -421,12 +427,12 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      *
      * @param node the function call node containing the function name and arguments
      * @return the value returned by the function, or null if no return statement was executed
-     * @throws RuntimeException if the function is undefined or argument count doesn't match parameter count
+     * @throws RJScriptError if the function is undefined or argument count doesn't match parameter count
      */
     @Override
     public Object visit(FunctionCallNode node) {
         if (!env.hasFunction(node.name())) {
-            throw new RuntimeException(ErrorMessages.ERROR_UNDEFINED_FUNCTION + node.name());
+            throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_UNDEFINED_FUNCTION + node.name(), node.line(), node.column());
         }
 
         Callable callable = env.getFunction(node.name());
@@ -437,7 +443,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
             return callUserFunction(function, node);
         }
 
-        throw new RuntimeException(ErrorMessages.ERROR_UNDEFINED_FUNCTION + node.name());
+        throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_UNDEFINED_FUNCTION + node.name(), node.line(), node.column());
     }
 
     private Object callNativeFunction(NativeFunction nativeFunction, FunctionCallNode node) {
@@ -445,8 +451,8 @@ public class ASTInterpreter implements ASTVisitor<Object> {
         int actualArgs = node.arguments().size();
 
         if (expectedArity != -1 && actualArgs != expectedArity) {
-            throw new RuntimeException(String.format(ErrorMessages.ERROR_NATIVE_FUNCTION_ARGUMENT_MISMATCH,
-                nativeFunction.name(), expectedArity, actualArgs));
+            throw new RJScriptError(ErrorType.RUNTIME, String.format(ErrorMessages.ERROR_NATIVE_FUNCTION_ARGUMENT_MISMATCH,
+                nativeFunction.name(), expectedArity, actualArgs), node.line(), node.column());
         }
 
         List<Object> evaluatedArgs = new ArrayList<>();
@@ -459,8 +465,8 @@ public class ASTInterpreter implements ASTVisitor<Object> {
 
     private Object callUserFunction(Function function, FunctionCallNode node) {
         if (node.arguments().size() != function.parameters().size()) {
-            throw new RuntimeException(String.format(ErrorMessages.ERROR_FUNCTION_ARGUMENT_MISMATCH,
-                node.name(), function.parameters().size(), node.arguments().size()));
+            throw new RJScriptError(ErrorType.RUNTIME, String.format(ErrorMessages.ERROR_FUNCTION_ARGUMENT_MISMATCH,
+                node.name(), function.parameters().size(), node.arguments().size()), node.line(), node.column());
         }
 
         // Create a new environment that inherits from the function's closure environment,
