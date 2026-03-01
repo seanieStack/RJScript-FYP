@@ -14,22 +14,23 @@ public final class Constants {
     public static final String FILE_EXTENSION = ".rjs";
 
     // Exit codes
-    public static final int EXIT_CODE_SUCCESS = 0;
     public static final int EXIT_CODE_ERROR = 1;
-
-    // REPL configuration
-    public static final String REPL_WELCOME_MESSAGE = "RJScript REPL";
-    public static final String REPL_EXIT_INSTRUCTIONS = "Type 'exit' to quit";
-    public static final String REPL_PROMPT = "> ";
-    public static final String REPL_EXIT_COMMAND = "exit";
-    public static final String STATEMENT_TERMINATOR = ";";
 
     // Output labels
     public static final String OUTPUT_AST_LABEL = "AST:";
-    public static final String OUTPUT_EXECUTION_LABEL = "Output:";
 
-    // Common characters
-    public static final String NEWLINE = "\n";
+    // Logging
+    public static final String LOG_FILE_NAME = "rjscript.log";
+    public static final String INTERNAL_ERROR_LOG_PREFIX = "Internal error: ";
+    public static final String INTERNAL_ERROR_USER_MESSAGE = "An internal error occurred. See rjscript.log for details.";
+
+    // Debug output labels
+    public static final String DEBUG_TOKENS_LABEL = "Tokens:";
+    public static final String DEBUG_ENV_VARIABLES_LABEL = "\n[Env] Variables:";
+    public static final String DEBUG_ENV_FUNCTIONS_LABEL = "[Env] User Functions:";
+
+    // Trace prefix
+    public static final String TRACE_PREFIX = "[trace] ";
 
     // Type conversion values
     public static final int TRUE_INTEGER_VALUE = 1;

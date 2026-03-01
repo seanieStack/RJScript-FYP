@@ -1,0 +1,8 @@
+Feb 25, 2026 1:03:04 AM io.github.seanieStack.RJScript runFile
+SEVERE: Internal error: Cannot invoke "io.github.seanieStack.ast.core.ASTNode.accept(io.github.seanieStack.ast.core.ASTVisitor)" because "statement" is null
+Feb 25, 2026 1:03:04 AM io.github.seanieStack.RJScript runFile
+SEVERE: Internal error: Cannot invoke "io.github.seanieStack.ast.core.ASTNode.accept(io.github.seanieStack.ast.core.ASTVisitor)" because the return value of "java.util.List.get(int)" is null
+Feb 25, 2026 1:03:05 AM io.github.seanieStack.RJScript runFile
+SEVERE: Internal error: Cannot invoke "io.github.seanieStack.ast.core.ASTNode.accept(io.github.seanieStack.ast.core.ASTVisitor)" because "statement" is null
+Feb 25, 2026 1:03:05 AM io.github.seanieStack.RJScript runFile
+SEVERE: Internal error: Cannot invoke "io.github.seanieStack.ast.core.ASTNode.accept(io.github.seanieStack.ast.core.ASTVisitor)" because "statement" is null

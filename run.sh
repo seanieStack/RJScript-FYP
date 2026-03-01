@@ -8,9 +8,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo ""
-echo "Build successful"
-echo "Running project"
-echo ""
-
 java -jar build/libs/FYP-RJScript-0.0.1.jar "$@"

@@ -13,10 +13,6 @@ public final class ErrorMessages {
     // File handling errors
     public static final String ERROR_INVALID_FILE_EXTENSION = "Error: File must have .rjs extension";
     public static final String ERROR_READING_FILE_PREFIX = "Error reading file: ";
-    public static final String ERROR_READING_INPUT_PREFIX = "Error reading input: ";
-
-    // Parsing errors
-    public static final String ERROR_SYNTAX_ERROR = "Syntax error in input";
 
     // Runtime errors operators
     public static final String ERROR_DIVISION_BY_ZERO = "Division by zero";
@@ -35,6 +31,19 @@ public final class ErrorMessages {
     public static final String ERROR_CANNOT_CONVERT_TO_BOOLEAN = "Cannot convert %s to boolean";
     public static final String ERROR_CANNOT_CONVERT_FLOAT = "Cannot convert %s to float";
 
+
+    // Parse/syntax errors
+    public static final String ERROR_UNKNOWN_COMPARISON_OPERATOR = "Unknown comparison operator: ";
+    public static final String ERROR_UNKNOWN_PRIMARY_EXPRESSION = "Unknown primary expression";
+
+    // Runtime errors - array operations
+    public static final String ERROR_CANNOT_INDEX_NON_ARRAY = "Cannot index into non-array value of type ";
+    public static final String ERROR_ARRAY_INDEX_NOT_INTEGER = "Array index must be an integer, got ";
+    public static final String ERROR_ARRAY_INDEX_OUT_OF_BOUNDS = "Array index out of bounds: %d for array of length %d";
+    public static final String ERROR_UNKNOWN_UNARY_OPERATOR = "Unknown unary operator: ";
+
+    // Runtime errors - environment
+    public static final String ERROR_VARIABLE_NOT_FOUND = "Variable %s not found";
 
     // Error prefixes
     public static final String ERROR_PREFIX = "Error: ";

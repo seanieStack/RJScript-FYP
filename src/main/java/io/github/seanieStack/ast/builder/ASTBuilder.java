@@ -6,6 +6,9 @@ import io.github.seanieStack.ast.statements.*;
 import io.github.seanieStack.ast.structural.BlockNode;
 import io.github.seanieStack.ast.structural.FunctionDeclarationNode;
 import io.github.seanieStack.ast.structural.ProgramNode;
+import io.github.seanieStack.constants.ErrorMessages;
+import io.github.seanieStack.errors.ErrorType;
+import io.github.seanieStack.errors.RJScriptError;
 import io.github.seanieStack.parser.RJScriptBaseVisitor;
 import io.github.seanieStack.parser.RJScriptParser;
 import java.util.ArrayList;
@@ -318,7 +321,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
                 case ">=" -> BinaryOpNode.Operator.GREATER_EQUAL;
                 case "==" -> BinaryOpNode.Operator.EQUAL;
                 case "!=" -> BinaryOpNode.Operator.NOT_EQUAL;
-                default -> throw new RuntimeException("Unknown comparison operator: " + operator);
+                default -> throw new RJScriptError(ErrorType.SYNTAX, ErrorMessages.ERROR_UNKNOWN_COMPARISON_OPERATOR + operator, line, col);
             };
 
             return new BinaryOpNode(op, left, right, line, col);
@@ -440,7 +443,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
         } else if (ctx.expression() != null) {
             return visit(ctx.expression());
         }
-        throw new RuntimeException("Unknown primary expression");
+        throw new RJScriptError(ErrorType.SYNTAX, ErrorMessages.ERROR_UNKNOWN_PRIMARY_EXPRESSION, line, col);
     }
 
     /**

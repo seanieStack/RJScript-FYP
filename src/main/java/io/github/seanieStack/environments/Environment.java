@@ -1,5 +1,6 @@
 package io.github.seanieStack.environments;
 
+import io.github.seanieStack.constants.ErrorMessages;
 import io.github.seanieStack.interpreter.Callable;
 
 import java.util.HashMap;
@@ -90,7 +91,7 @@ public class Environment {
         } else if (parent != null) {
             parent.update(variableName, value);
         } else {
-            throw new RuntimeException("Variable " + variableName + " not found");
+            throw new RuntimeException(String.format(ErrorMessages.ERROR_VARIABLE_NOT_FOUND, variableName));
         }
     }
 
@@ -134,5 +135,13 @@ public class Environment {
         } else {
             return false;
         }
+    }
+
+    public Map<String, Object> getVariables() {
+        return java.util.Collections.unmodifiableMap(variables);
+    }
+
+    public Map<String, Callable> getFunctions() {
+        return java.util.Collections.unmodifiableMap(functions);
     }
 }

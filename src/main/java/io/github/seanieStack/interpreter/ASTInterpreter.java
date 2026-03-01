@@ -7,6 +7,7 @@ import io.github.seanieStack.ast.statements.*;
 import io.github.seanieStack.ast.structural.BlockNode;
 import io.github.seanieStack.ast.structural.FunctionDeclarationNode;
 import io.github.seanieStack.ast.structural.ProgramNode;
+import io.github.seanieStack.constants.Constants;
 import io.github.seanieStack.constants.ErrorMessages;
 import io.github.seanieStack.environments.Environment;
 import io.github.seanieStack.errors.ErrorType;
@@ -28,9 +29,22 @@ public class ASTInterpreter implements ASTVisitor<Object> {
 
     private Environment env = new Environment(null);
     private final BinaryOperationEvaluator binaryOpEvaluator = new BinaryOperationEvaluator();
+    private boolean traceEnabled = false;
 
     public ASTInterpreter() {
         StandardLibrary.register(env);
+    }
+
+    public void setTraceEnabled(boolean enabled) {
+        this.traceEnabled = enabled;
+    }
+
+    public Environment getEnv() {
+        return env;
+    }
+
+    private void trace(String msg) {
+        if (traceEnabled) System.out.println(Constants.TRACE_PREFIX + msg);
     }
 
     /**
@@ -41,6 +55,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(ProgramNode node) {
+        trace("program");
         Object result = null;
         for (ASTNode statement : node.statements()) {
             result = statement.accept(this);
@@ -57,6 +72,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(ImportStatementNode node) {
+        trace("import " + node.functionName() + " from " + node.moduleName());
         try {
             NativeFunction function = BuiltinModuleRegistry.getFunction(node.moduleName(), node.functionName());
             env.putFunction(node.functionName(), function);
@@ -75,6 +91,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(VarDeclarationNode node) {
+        trace("let " + node.identifier());
         Object value = node.expression().accept(this);
         env.put(node.identifier(), value);
         return value;
@@ -89,8 +106,13 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(VarAssignmentNode node){
+        trace("assign " + node.identifier());
         Object value = node.expression().accept(this);
-        env.update(node.identifier(), value);
+        try {
+            env.update(node.identifier(), value);
+        } catch (RuntimeException e) {
+            throw new RJScriptError(ErrorType.RUNTIME, e.getMessage(), node.line(), node.column());
+        }
         return value;
     }
 
@@ -104,16 +126,23 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(IfStatementNode node) {
-        Object condition = node.condition().accept(this);
-        if (TypeConverter.toBoolean(condition)) {
-            return node.thenBlock().accept(this);
-        }
-
-        for (IfStatementNode.ElseIfClause elseIf : node.elseIfClauses()) {
-            Object elseIfCondition = elseIf.condition().accept(this);
-            if (TypeConverter.toBoolean(elseIfCondition)) {
-                return elseIf.block().accept(this);
+        trace("if");
+        try {
+            Object condition = node.condition().accept(this);
+            if (TypeConverter.toBoolean(condition)) {
+                return node.thenBlock().accept(this);
             }
+
+            for (IfStatementNode.ElseIfClause elseIf : node.elseIfClauses()) {
+                Object elseIfCondition = elseIf.condition().accept(this);
+                if (TypeConverter.toBoolean(elseIfCondition)) {
+                    return elseIf.block().accept(this);
+                }
+            }
+        } catch (ReturnException | RJScriptError e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new RJScriptError(ErrorType.RUNTIME, e.getMessage(), node.line(), node.column());
         }
 
         if (node.elseBlock() != null) {
@@ -132,9 +161,16 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(WhileStatementNode node) {
+        trace("while");
         Object result = null;
-        while (TypeConverter.toBoolean(node.condition().accept(this))) {
-            result = node.body().accept(this);
+        try {
+            while (TypeConverter.toBoolean(node.condition().accept(this))) {
+                result = node.body().accept(this);
+            }
+        } catch (ReturnException | RJScriptError e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new RJScriptError(ErrorType.RUNTIME, e.getMessage(), node.line(), node.column());
         }
         return result;
     }
@@ -149,14 +185,23 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(ForStatementNode node) {
+        trace("for");
         this.env = new Environment(this.env);
 
         node.initialization().accept(this);
 
         Object result = null;
-        while (TypeConverter.toBoolean(node.condition().accept(this))) {
-            result = node.body().accept(this);
-            node.update().accept(this);
+        try {
+            while (TypeConverter.toBoolean(node.condition().accept(this))) {
+                result = node.body().accept(this);
+                node.update().accept(this);
+            }
+        } catch (ReturnException | RJScriptError e) {
+            this.env = env.getParent();
+            throw e;
+        } catch (RuntimeException e) {
+            this.env = env.getParent();
+            throw new RJScriptError(ErrorType.RUNTIME, e.getMessage(), node.line(), node.column());
         }
 
         this.env = env.getParent();
@@ -173,6 +218,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(BlockNode node) {
+        trace("block");
         this.env = new Environment(this.env);
         Object result = null;
         for (ASTNode statement : node.statements()) {
@@ -191,6 +237,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(ExpressionStatementNode node) {
+        trace("expression-statement");
         return node.expression().accept(this);
     }
 
@@ -203,9 +250,16 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(BinaryOpNode node) {
+        trace("binop " + node.operator());
         Object left = node.left().accept(this);
         Object right = node.right().accept(this);
-        return binaryOpEvaluator.evaluate(node.operator(), left, right, node.line(), node.column());
+        try {
+            return binaryOpEvaluator.evaluate(node.operator(), left, right, node.line(), node.column());
+        } catch (RJScriptError e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new RJScriptError(ErrorType.RUNTIME, e.getMessage(), node.line(), node.column());
+        }
     }
 
     /**
@@ -217,15 +271,20 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(UnaryOpNode node) {
+        trace("unary " + node.operator());
         Object operand = node.operand().accept(this);
         if (node.operator() == UnaryOpNode.Operator.NEGATE) {
-            if (operand instanceof Double) {
-                return -TypeConverter.toDouble(operand);
-            } else {
-                return -TypeConverter.toInt(operand);
+            try {
+                if (operand instanceof Double) {
+                    return -TypeConverter.toDouble(operand);
+                } else {
+                    return -TypeConverter.toInt(operand);
+                }
+            } catch (RuntimeException e) {
+                throw new RJScriptError(ErrorType.RUNTIME, e.getMessage(), node.line(), node.column());
             }
         }
-        throw new RJScriptError(ErrorType.RUNTIME, "Unknown unary operator: " + node.operator(), node.line(), node.column());
+        throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_UNKNOWN_UNARY_OPERATOR + node.operator(), node.line(), node.column());
     }
 
     /**
@@ -236,6 +295,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(IntLiteralNode node) {
+        trace("int " + node.value());
         return node.value();
     }
 
@@ -247,6 +307,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(BoolLiteralNode node) {
+        trace("bool " + node.value());
         return node.value();
     }
 
@@ -260,6 +321,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(VariableNode node) {
+        trace("var " + node.name());
         if (env.hasVariable(node.name())) {
             return env.get(node.name());
         } else {
@@ -269,11 +331,13 @@ public class ASTInterpreter implements ASTVisitor<Object> {
 
     @Override
     public Object visit(FloatLiteralNode node) {
+        trace("float " + node.value());
         return node.value();
     }
 
     @Override
     public Object visit(StringLiteralNode node) {
+        trace("string \"" + node.value() + "\"");
         return node.value();
     }
 
@@ -285,6 +349,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(ArrayLiteralNode node) {
+        trace("array[" + node.elements().size() + "]");
         ArrayList<Object> elements = new ArrayList<>();
         for (ASTNode element : node.elements()) {
             elements.add(element.accept(this));
@@ -303,6 +368,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(IndexAccessNode node) {
+        trace("index " + node.identifier());
         if (!env.hasVariable(node.identifier())) {
             throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_UNDEFINED_VARIABLE + node.identifier(), node.line(), node.column());
         }
@@ -311,7 +377,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
 
         for (ASTNode indexNode : node.indices()) {
             if (!(current instanceof List<?> list)) {
-                throw new RJScriptError(ErrorType.RUNTIME, "Cannot index into non-array value of type " + TypeUtils.getTypeName(current), node.line(), node.column());
+                throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_CANNOT_INDEX_NON_ARRAY + TypeUtils.getTypeName(current), node.line(), node.column());
             }
 
             Object indexValue = indexNode.accept(this);
@@ -332,6 +398,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(IndexedAssignmentNode node) {
+        trace("index-assign " + node.identifier());
         if (!env.hasVariable(node.identifier())) {
             throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_UNDEFINED_VARIABLE + node.identifier(), node.line(), node.column());
         }
@@ -341,7 +408,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
         // Navigate to the parent list for the final index
         for (int i = 0; i < node.indices().size() - 1; i++) {
             if (!(current instanceof List<?> list)) {
-                throw new RJScriptError(ErrorType.RUNTIME, "Cannot index into non-array value of type " + TypeUtils.getTypeName(current), node.line(), node.column());
+                throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_CANNOT_INDEX_NON_ARRAY + TypeUtils.getTypeName(current), node.line(), node.column());
             }
 
             Object indexValue = node.indices().get(i).accept(this);
@@ -351,7 +418,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
 
         // Now current is the list we need to modify
         if (!(current instanceof List<?>)) {
-            throw new RJScriptError(ErrorType.RUNTIME, "Cannot index into non-array value of type " + TypeUtils.getTypeName(current), node.line(), node.column());
+            throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_CANNOT_INDEX_NON_ARRAY + TypeUtils.getTypeName(current), node.line(), node.column());
         }
 
         @SuppressWarnings("unchecked") //Checked above - reports unchecked due to wildcard check
@@ -360,14 +427,14 @@ public class ASTInterpreter implements ASTVisitor<Object> {
         Object lastIndexValue = lastIndexNode.accept(this);
 
         if (!(lastIndexValue instanceof Integer)) {
-            throw new RJScriptError(ErrorType.RUNTIME, "Array index must be an integer, got " + TypeUtils.getTypeName(lastIndexValue), node.line(), node.column());
+            throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_ARRAY_INDEX_NOT_INTEGER + TypeUtils.getTypeName(lastIndexValue), node.line(), node.column());
         }
 
         int lastIndex = (Integer) lastIndexValue;
         int actualLastIndex = resolveIndex(lastIndex, targetList.size());
 
         if (actualLastIndex < 0 || actualLastIndex >= targetList.size()) {
-            throw new RJScriptError(ErrorType.RUNTIME, "Array index out of bounds: " + lastIndex + " for array of length " + targetList.size(), node.line(), node.column());
+            throw new RJScriptError(ErrorType.RUNTIME, String.format(ErrorMessages.ERROR_ARRAY_INDEX_OUT_OF_BOUNDS, lastIndex, targetList.size()), node.line(), node.column());
         }
 
         Object value = node.value().accept(this);
@@ -379,14 +446,14 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     private Object getNextListInChain(List<?> list, Object indexValue, int line, int column) {
         Object current;
         if (!(indexValue instanceof Integer)) {
-            throw new RJScriptError(ErrorType.RUNTIME, "Array index must be an integer, got " + TypeUtils.getTypeName(indexValue), line, column);
+            throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_ARRAY_INDEX_NOT_INTEGER + TypeUtils.getTypeName(indexValue), line, column);
         }
 
         int index = (Integer) indexValue;
         int actualIndex = resolveIndex(index, list.size());
 
         if (actualIndex < 0 || actualIndex >= list.size()) {
-            throw new RJScriptError(ErrorType.RUNTIME, "Array index out of bounds: " + index + " for array of length " + list.size(), line, column);
+            throw new RJScriptError(ErrorType.RUNTIME, String.format(ErrorMessages.ERROR_ARRAY_INDEX_OUT_OF_BOUNDS, index, list.size()), line, column);
         }
 
         current = list.get(actualIndex);
@@ -414,6 +481,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(FunctionDeclarationNode node) {
+        trace("fn " + node.name() + "(" + String.join(", ", node.parameters()) + ")");
         Function function = new Function(node.parameters(), node.body(), this.env);
 
         env.putFunction(node.name(), function);
@@ -431,6 +499,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(FunctionCallNode node) {
+        trace("call " + node.name() + "(" + node.arguments().size() + " args)");
         if (!env.hasFunction(node.name())) {
             throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_UNDEFINED_FUNCTION + node.name(), node.line(), node.column());
         }
@@ -460,7 +529,13 @@ public class ASTInterpreter implements ASTVisitor<Object> {
             evaluatedArgs.add(arg.accept(this));
         }
 
-        return nativeFunction.call(evaluatedArgs);
+        try {
+            return nativeFunction.call(evaluatedArgs);
+        } catch (RJScriptError e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new RJScriptError(ErrorType.RUNTIME, e.getMessage(), node.line(), node.column());
+        }
     }
 
     private Object callUserFunction(Function function, FunctionCallNode node) {
@@ -505,6 +580,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      */
     @Override
     public Object visit(ReturnStatementNode node) {
+        trace("return");
         Object value = node.expression().accept(this);
         throw new ReturnException(value);
     }
