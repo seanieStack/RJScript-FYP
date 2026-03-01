@@ -1,0 +1,42 @@
+date,category,amount,description
+2025-03-01,Food,8.50,Sandwich and coffee
+2025-03-01,Transport,3.20,Bus fare
+2025-03-02,Coffee,4.50,Flat white
+2025-03-03,Food,22.40,Weekly grocery shop
+2025-03-03,Entertainment,14.99,Netflix subscription
+2025-03-04,Coffee,3.80,Americano
+2025-03-04,Transport,3.20,Bus fare
+2025-03-05,Food,9.75,Lunch at deli
+2025-03-06,Shopping,45.00,New headphones
+2025-03-07,Coffee,4.50,Cappuccino and muffin
+2025-03-07,Transport,3.20,Bus fare
+2025-03-08,Food,11.20,Dinner groceries
+2025-03-09,Utilities,62.00,Electricity bill
+2025-03-10,Coffee,3.80,Flat white
+2025-03-10,Food,7.50,Lunch wrap
+2025-03-11,Entertainment,12.00,Cinema ticket
+2025-03-11,Transport,6.40,Return bus fare
+2025-03-12,Shopping,28.99,Book order
+2025-03-13,Food,35.60,Weekly grocery shop
+2025-03-14,Coffee,4.50,Latte
+2025-03-14,Healthcare,25.00,Pharmacy
+2025-03-15,Food,9.20,Lunch sandwich
+2025-03-15,Transport,3.20,Bus fare
+2025-03-16,Entertainment,9.99,Spotify subscription
+2025-03-17,Food,15.40,Dinner out
+2025-03-18,Coffee,3.80,Espresso
+2025-03-19,Shopping,89.00,Running shoes
+2025-03-20,Food,6.80,Breakfast
+2025-03-21,Transport,9.60,Bus fare x3
+2025-03-22,Utilities,38.50,Gas bill
+2025-03-22,Food,32.10,Weekly grocery shop
+2025-03-23,Coffee,4.50,Flat white and cake
+2025-03-24,Entertainment,45.00,Concert ticket
+2025-03-25,Food,8.90,Lunch
+2025-03-26,Healthcare,15.00,Vitamins
+2025-03-27,Shopping,22.00,Stationery
+2025-03-28,Food,28.40,Weekly grocery shop
+2025-03-28,Coffee,3.80,Americano
+2025-03-29,Transport,3.20,Bus fare
+2025-03-30,Entertainment,14.99,Netflix subscription
+2025-03-31,Food,11.60,Dinner groceries
