@@ -7,8 +7,10 @@ import io.github.seanieStack.ast.core.ASTVisitor;
  * Boolean literal expression.
  *
  * @param value the boolean value (true or false)
+ * @param line the source line number
+ * @param column the source column number
  */
-public record BoolLiteralNode(boolean value) implements ASTNode {
+public record BoolLiteralNode(boolean value, int line, int column) implements ASTNode {
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {

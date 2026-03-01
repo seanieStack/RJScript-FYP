@@ -2,6 +2,8 @@ package io.github.seanieStack.interpreter;
 
 import io.github.seanieStack.ast.expressions.BinaryOpNode;
 import io.github.seanieStack.constants.ErrorMessages;
+import io.github.seanieStack.errors.ErrorType;
+import io.github.seanieStack.errors.RJScriptError;
 
 /**
  * Evaluates binary operations between two operands. Handles arithmetic operations
@@ -16,10 +18,12 @@ public class BinaryOperationEvaluator {
      * @param operator the binary operator to apply
      * @param left the left operand
      * @param right the right operand
+     * @param line the source line number for error reporting
+     * @param column the source column number for error reporting
      * @return the result of the binary operation (Integer, Double, Boolean, or String)
-     * @throws RuntimeException if division by zero occurs
+     * @throws RJScriptError if division by zero occurs
      */
-    public Object evaluate(BinaryOpNode.Operator operator, Object left, Object right) {
+    public Object evaluate(BinaryOpNode.Operator operator, Object left, Object right, int line, int column) {
         boolean isString = (left instanceof String || right instanceof String);
         boolean isBoolean = (left instanceof Boolean || right instanceof Boolean);
         boolean isFloat = (left instanceof Double || right instanceof Double);
@@ -28,7 +32,7 @@ public class BinaryOperationEvaluator {
             case ADD -> evaluateAddition(left, right, isString, isFloat);
             case SUBTRACT -> evaluateSubtraction(left, right, isFloat);
             case MULTIPLY -> evaluateMultiplication(left, right, isFloat);
-            case DIVIDE -> evaluateDivision(left, right, isFloat);
+            case DIVIDE -> evaluateDivision(left, right, isFloat, line, column);
             case LESS_THAN -> evaluateLessThan(left, right, isFloat);
             case GREATER_THAN -> evaluateGreaterThan(left, right, isFloat);
             case LESS_EQUAL -> evaluateLessEqual(left, right, isFloat);
@@ -78,17 +82,17 @@ public class BinaryOperationEvaluator {
     /**
      * Evaluates division for integers and floats. Checks for division by zero.
      */
-    private Object evaluateDivision(Object left, Object right, boolean isFloat) {
+    private Object evaluateDivision(Object left, Object right, boolean isFloat, int line, int column) {
         if (isFloat) {
             double rightVal = TypeConverter.toDouble(right);
             if (rightVal == 0.0) {
-                throw new RuntimeException(ErrorMessages.ERROR_DIVISION_BY_ZERO);
+                throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_DIVISION_BY_ZERO, line, column);
             }
             return TypeConverter.toDouble(left) / rightVal;
         } else {
             int rightVal = TypeConverter.toInt(right);
             if (rightVal == 0) {
-                throw new RuntimeException(ErrorMessages.ERROR_DIVISION_BY_ZERO);
+                throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_DIVISION_BY_ZERO, line, column);
             }
             return TypeConverter.toInt(left) / rightVal;
         }

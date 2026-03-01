@@ -10,11 +10,15 @@ import io.github.seanieStack.ast.core.ASTVisitor;
  * @param operator the binary operator to apply
  * @param left the left operand expression
  * @param right the right operand expression
+ * @param line the source line number
+ * @param column the source column number
  */
 public record BinaryOpNode(
         Operator operator,
         ASTNode left,
-        ASTNode right
+        ASTNode right,
+        int line,
+        int column
 ) implements ASTNode {
 
     public enum Operator {

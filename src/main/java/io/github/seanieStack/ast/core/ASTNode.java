@@ -13,4 +13,7 @@ public interface ASTNode {
      * @return the result of the visitor operation
      */
     <T> T accept(ASTVisitor<T> visitor);
+
+    int line();
+    int column();
 }

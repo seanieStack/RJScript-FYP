@@ -1,0 +1,96 @@
+import readFile from io;
+import writeFile from io;
+import split from strings;
+import trim from strings;
+import startsWith from strings;
+import substring from strings;
+import indexOf from strings;
+import now from time;
+
+let logPath = "examples/log-analyzer/server.log";
+let raw = readFile(logPath);
+let lines = split(raw, "\n");
+
+let totalLines = 0;
+let infoCount = 0;
+let warnCount = 0;
+let errorCount = 0;
+
+let errors = [];
+let warnings = [];
+
+for (let i = 0; i < len(lines); i = i + 1) {
+    let line = trim(lines[i]);
+
+    if (len(line) == 0) {
+        i = i + 0;
+    } else {
+        totalLines = totalLines + 1;
+
+
+        let sep = indexOf(line, "] ");
+
+        if (sep > 0) {
+            let timestamp = substring(line, 1, sep);
+            let rest = substring(line, sep + 2, len(line));
+
+            if (startsWith(rest, "ERROR")) {
+                errorCount = errorCount + 1;
+                let msg = substring(rest, 7, len(rest));
+                push(errors, "[" + timestamp + "] " + msg);
+
+            } else if (startsWith(rest, "WARN")) {
+                warnCount = warnCount + 1;
+                let msg = substring(rest, 6, len(rest));
+                push(warnings, "[" + timestamp + "] " + msg);
+
+            } else if (startsWith(rest, "INFO")) {
+                infoCount = infoCount + 1;
+            }
+        }
+    }
+}
+
+print("Log Analysis: " + logPath);
+print("Total lines : " + str(totalLines));
+print("INFO        : " + str(infoCount));
+print("WARN        : " + str(warnCount));
+print("ERROR       : " + str(errorCount));
+
+if (errorCount > 0) {
+    print("");
+    print("Errors (" + str(errorCount) + "):");
+    for (let i = 0; i < len(errors); i = i + 1) {
+        print("  [ERROR] " + errors[i]);
+    }
+}
+
+if (warnCount > 0) {
+    print("");
+    print("Warnings (" + str(warnCount) + "):");
+    for (let i = 0; i < len(warnings); i = i + 1) {
+        print("  [WARN]  " + warnings[i]);
+    }
+}
+
+let report = "Log Analysis Report\n";
+report = report + "Source  : " + logPath + "\n";
+report = report + "Total   : " + str(totalLines) + "\n";
+report = report + "INFO    : " + str(infoCount) + "\n";
+report = report + "WARN    : " + str(warnCount) + "\n";
+report = report + "ERROR   : " + str(errorCount) + "\n";
+
+report = report + "\nErrors:\n";
+for (let i = 0; i < len(errors); i = i + 1) {
+    report = report + "  " + errors[i] + "\n";
+}
+
+report = report + "\nWarnings:\n";
+for (let i = 0; i < len(warnings); i = i + 1) {
+    report = report + "  " + warnings[i] + "\n";
+}
+
+let outPath = "examples/log-analyzer/log-summary.txt";
+writeFile(outPath, report);
+print("");
+print("Report written to " + outPath);

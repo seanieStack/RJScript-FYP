@@ -1,0 +1,136 @@
+import readFile from io;
+import writeFile from io;
+import split from strings;
+import trim from strings;
+
+function formatAmount(n) {
+    let cents = round(n * 100.0);
+    let dollars = floor(float(cents) / 100.0);
+    let rem = cents - dollars * 100;
+    let remStr = str(rem);
+    if (rem < 10) {
+        remStr = "0" + remStr;
+    }
+    return "$" + str(dollars) + "." + remStr;
+}
+
+function findIndex(categoryNames, name) {
+    for (let i = 0; i < len(categoryNames); i = i + 1) {
+        if (categoryNames[i] == name) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+function sortByTotal(categoryNames, categoryTotals, transactionCounts) {
+    let n = len(categoryNames);
+    for (let i = 0; i < n - 1; i = i + 1) {
+        for (let j = 0; j < n - 1 - i; j = j + 1) {
+            if (categoryTotals[j] < categoryTotals[j + 1]) {
+                let swapName = categoryNames[j];
+                categoryNames[j] = categoryNames[j + 1];
+                categoryNames[j + 1] = swapName;
+
+                let swapTotal = categoryTotals[j];
+                categoryTotals[j] = categoryTotals[j + 1];
+                categoryTotals[j + 1] = swapTotal;
+
+                let swapCount = transactionCounts[j];
+                transactionCounts[j] = transactionCounts[j + 1];
+                transactionCounts[j + 1] = swapCount;
+            }
+        }
+    }
+}
+
+let csvPath = "examples/expense-tracker/expenses.csv";
+let lines = split(readFile(csvPath), "\n");
+
+let totalSpent = 0.0;
+let rowCount = 0;
+
+let categories = [];
+let categoryTotals = [];
+let transactionCounts = [];
+
+let biggestAmount = 0.0;
+let biggestDesc = "";
+let biggestCat = "";
+let biggestDate = "";
+
+for (let i = 1; i < len(lines); i = i + 1) {
+    let line = trim(lines[i]);
+    if (len(line) > 0) {
+        let parts = split(line, ",");
+        let date = trim(parts[0]);
+        let category = trim(parts[1]);
+        let amount = float(trim(parts[2]));
+        let desc = trim(parts[3]);
+
+        totalSpent = totalSpent + amount;
+        rowCount = rowCount + 1;
+
+        let idx = findIndex(categories, category);
+        if (idx == -1) {
+            push(categories, category);
+            push(categoryTotals, amount);
+            push(transactionCounts, 1);
+        } else {
+            categoryTotals[idx] = categoryTotals[idx] + amount;
+            transactionCounts[idx] = transactionCounts[idx] + 1;
+        }
+
+        if (amount > biggestAmount) {
+            biggestAmount = amount;
+            biggestDesc = desc;
+            biggestCat = category;
+            biggestDate = date;
+        }
+    }
+}
+
+sortByTotal(categories, categoryTotals, transactionCounts);
+
+let avgPerTransaction = totalSpent / float(rowCount);
+let avgPerDay = totalSpent / 31.0;
+
+print("Expense Report — March 2025");
+print("Transactions : " + str(rowCount));
+print("Total spent  : " + formatAmount(totalSpent));
+print("Avg per day  : " + formatAmount(avgPerDay));
+print("Avg per txn  : " + formatAmount(avgPerTransaction));
+print("");
+print("By category (largest first):");
+
+for (let i = 0; i < len(categories); i = i + 1) {
+    let pct = round(categoryTotals[i] / totalSpent * 100.0);
+    let amount = formatAmount(categoryTotals[i]);
+    let count = str(transactionCounts[i]);
+    print("  " + categories[i] + ": " + amount + " across " + count + " transactions (" + str(pct) + "%)");
+}
+
+print("");
+print("Biggest single expense:");
+print("  " + formatAmount(biggestAmount) + " — " + biggestDesc + " [" + biggestCat + "] on " + biggestDate);
+
+let report = "Expense Report — March 2025\n";
+report = report + "============================\n";
+report = report + "Transactions : " + str(rowCount) + "\n";
+report = report + "Total spent  : " + formatAmount(totalSpent) + "\n";
+report = report + "Avg per day  : " + formatAmount(avgPerDay) + "\n";
+report = report + "Avg per txn  : " + formatAmount(avgPerTransaction) + "\n";
+report = report + "\nBy category:\n";
+
+for (let i = 0; i < len(categories); i = i + 1) {
+    let pct = round(categoryTotals[i] / totalSpent * 100.0);
+    report = report + "  " + categories[i] + " — " + formatAmount(categoryTotals[i]) + " (" + str(pct) + "%)\n";
+}
+
+report = report + "\nBiggest expense:\n";
+report = report + "  " + formatAmount(biggestAmount) + " — " + biggestDesc + " [" + biggestCat + "] on " + biggestDate + "\n";
+
+let outPath = "examples/expense-tracker/report.txt";
+writeFile(outPath, report);
+print("");
+print("Report written to " + outPath);

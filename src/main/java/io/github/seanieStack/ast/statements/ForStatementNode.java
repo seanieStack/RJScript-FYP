@@ -12,12 +12,16 @@ import io.github.seanieStack.ast.core.ASTVisitor;
  * @param condition the loop condition evaluated before each iteration (may be null for infinite loop)
  * @param update the statement executed after each iteration (may be null)
  * @param body the block to execute on each iteration
+ * @param line the source line number
+ * @param column the source column number
  */
 public record ForStatementNode(
         ASTNode initialization,
         ASTNode condition,
         ASTNode update,
-        BlockNode body
+        BlockNode body,
+        int line,
+        int column
 ) implements ASTNode {
 
     @Override
