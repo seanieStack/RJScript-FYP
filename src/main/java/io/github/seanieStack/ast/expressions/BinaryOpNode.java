@@ -22,9 +22,10 @@ public record BinaryOpNode(
 ) implements ASTNode {
 
     public enum Operator {
-        ADD, SUBTRACT, MULTIPLY, DIVIDE,
+        ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULO,
         LESS_THAN, GREATER_THAN, LESS_EQUAL, GREATER_EQUAL, EQUAL, NOT_EQUAL,
         LOGICAL_AND, LOGICAL_OR
+
     }
 
     @Override

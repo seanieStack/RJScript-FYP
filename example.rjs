@@ -363,10 +363,8 @@ print("\n\nfizzbuzz");
 print("Expected:\n1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n17\nFizz\n19\nBuzz");
 print("---------------------------");
 for (let fb = 1; fb <= 20; fb = fb + 1) {
-    let divisBy3 = fb / 3;
-    let divisBy5 = fb / 5;
-    let mod3 = fb - int(divisBy3) * 3;
-    let mod5 = fb - int(divisBy5) * 5;
+    let mod3 = fb % 3;
+    let mod5 = fb % 5;
 
     if (mod3 == 0 && mod5 == 0) {
         print("FizzBuzz");

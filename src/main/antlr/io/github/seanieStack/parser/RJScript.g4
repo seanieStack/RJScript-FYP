@@ -60,7 +60,7 @@ comparison : additive ((LT | GT | LE | GE | EQ | NEQ) additive)? ;
 
 additive : multiplicative ((PLUS | MINUS) multiplicative)*;
 
-multiplicative: unary ((MULTIPLY | DIVISION) unary)*;
+multiplicative: unary ((MULTIPLY | DIVISION | MODULO) unary)*;
 
 unary : MINUS unary
       | NOT unary
@@ -110,6 +110,7 @@ PLUS            : '+' ;
 MINUS           : '-' ;
 MULTIPLY        : '*' ;
 DIVISION        : '/' ;
+MODULO          : '%' ;
 LPAREN          : '(' ;
 RPAREN          : ')' ;
 LBRACE          : '{' ;
