@@ -379,9 +379,11 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
             String operator = ctx.getChild(2 * i + 1).getText();
             ASTNode right = visit(ctx.unary(i + 1));
 
-            BinaryOpNode.Operator op = operator.equals("*") ?
-                    BinaryOpNode.Operator.MULTIPLY :
-                    BinaryOpNode.Operator.DIVIDE;
+            BinaryOpNode.Operator op = switch (operator) {
+                case "/" -> BinaryOpNode.Operator.DIVIDE;
+                case "%" -> BinaryOpNode.Operator.MODULO;
+                default -> BinaryOpNode.Operator.MULTIPLY;
+            };
 
             result = new BinaryOpNode(op, result, right, line, col);
         }

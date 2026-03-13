@@ -6,7 +6,7 @@ import trim from strings;
 function formatAmount(n) {
     let cents = round(n * 100.0);
     let dollars = floor(float(cents) / 100.0);
-    let rem = cents - dollars * 100;
+    let rem = cents % 100;
     let remStr = str(rem);
     if (rem < 10) {
         remStr = "0" + remStr;

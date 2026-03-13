@@ -23,7 +23,7 @@ for (let i = 0; i < len(lines); i = i + 1) {
             num = 0 - num;
         }
         cur = cur + num;
-        cur = cur - floor(float(cur) / 100) * 100;
+        cur = cur % 100;
 
         if (cur == 0) {
             count = count + 1;
@@ -59,7 +59,7 @@ for (let i = 0; i < len(lines); i = i + 1) {
         }
 
         count = count + pass_zero;
-        cur = end - floor(float(end) / 100) * 100;
+        cur = end % 100;
     }
 }
 
