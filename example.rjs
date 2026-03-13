@@ -368,12 +368,10 @@ for (let fb = 1; fb <= 20; fb = fb + 1) {
     let mod3 = fb - int(divisBy3) * 3;
     let mod5 = fb - int(divisBy5) * 5;
 
-    if (mod3 == 0) {
-        if (mod5 == 0) {
-            print("FizzBuzz");
-        } else {
-            print("Fizz");
-        }
+    if (mod3 == 0 && mod5 == 0) {
+        print("FizzBuzz");
+    } else if (mod3 == 0) {
+        print("Fizz");
     } else if (mod5 == 0) {
         print("Buzz");
     } else {
