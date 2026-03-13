@@ -1,0 +1,49 @@
+import getTemp from sensor;
+import getHumidity from sensor;
+import getPressure from sensor;
+import getReadingIndex from sensor;
+import alert from sensor;
+import log from sensor;
+
+let TEMP_HIGH = 35.0;
+let TEMP_LOW = 0.0;
+let HUMIDITY_MAX = 85.0;
+let PRESSURE_LOW = 1000.0;
+
+let temp = getTemp();
+let humidity = getHumidity();
+let pressure = getPressure();
+
+let triggered = false;
+
+if (temp > TEMP_HIGH) {
+    alert("warning", "High temperature: " + str(temp) + " C (threshold: " + str(TEMP_HIGH) + " C)");
+    triggered = true;
+}
+
+if (temp < TEMP_LOW) {
+    alert("critical", "Freezing temperature: " + str(temp) + " C");
+    triggered = true;
+}
+
+if (humidity > HUMIDITY_MAX) {
+    alert("warning", "High humidity: " + str(humidity) + "% (threshold: " + str(HUMIDITY_MAX) + "%)");
+    triggered = true;
+}
+
+if (pressure < PRESSURE_LOW) {
+    alert("warning", "Low pressure: " + str(pressure) + " hPa (threshold: " + str(PRESSURE_LOW) + " hPa)");
+    triggered = true;
+}
+
+if (temp > TEMP_HIGH) {
+    if (humidity > HUMIDITY_MAX) {
+        if (pressure < PRESSURE_LOW) {
+            alert("critical", "Dangerous conditions — heat + humidity + low pressure");
+        }
+    }
+}
+
+if (triggered == false) {
+    log("All readings within normal range");
+}
