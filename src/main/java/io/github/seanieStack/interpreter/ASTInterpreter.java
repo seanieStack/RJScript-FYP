@@ -18,7 +18,9 @@ import io.github.seanieStack.stdlib.StandardLibrary;
 import io.github.seanieStack.stdlib.TypeUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interprets and executes an Abstract Syntax Tree (AST) by walking through nodes
@@ -30,6 +32,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     private Environment env = new Environment(null);
     private final BinaryOperationEvaluator binaryOpEvaluator = new BinaryOperationEvaluator();
     private boolean traceEnabled = false;
+    private Map<String, Map<String, NativeFunction>> embeddedModules = new HashMap<>();
 
     public ASTInterpreter() {
         StandardLibrary.register(env);
@@ -37,6 +40,10 @@ public class ASTInterpreter implements ASTVisitor<Object> {
 
     public void setTraceEnabled(boolean enabled) {
         this.traceEnabled = enabled;
+    }
+
+    public void setEmbeddedModules(Map<String, Map<String, NativeFunction>> modules) {
+        this.embeddedModules = modules;
     }
 
     public Environment getEnv() {
@@ -74,8 +81,19 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     public Object visit(ImportStatementNode node) {
         trace("import " + node.functionName() + " from " + node.moduleName());
         try {
-            NativeFunction function = BuiltinModuleRegistry.getFunction(node.moduleName(), node.functionName());
+            NativeFunction function;
+            if (embeddedModules.containsKey(node.moduleName())) {
+                Map<String, NativeFunction> module = embeddedModules.get(node.moduleName());
+                function = module.get(node.functionName());
+                if (function == null) {
+                    throw new RJScriptError(ErrorType.IMPORT, "Unknown function '" + node.functionName() + "' in module '" + node.moduleName() + "'", node.line(), node.column());
+                }
+            } else {
+                function = BuiltinModuleRegistry.getFunction(node.moduleName(), node.functionName());
+            }
             env.putFunction(node.functionName(), function);
+        } catch (RJScriptError e) {
+            throw e;
         } catch (RuntimeException e) {
             throw new RJScriptError(ErrorType.IMPORT, e.getMessage(), node.line(), node.column());
         }
