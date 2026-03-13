@@ -269,6 +269,19 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     @Override
     public Object visit(BinaryOpNode node) {
         trace("binop " + node.operator());
+
+        // Short-circuit evaluation for logical operators
+        if (node.operator() == BinaryOpNode.Operator.LOGICAL_AND) {
+            Object left = node.left().accept(this);
+            if (!TypeConverter.toBoolean(left)) return false;
+            return TypeConverter.toBoolean(node.right().accept(this));
+        }
+        if (node.operator() == BinaryOpNode.Operator.LOGICAL_OR) {
+            Object left = node.left().accept(this);
+            if (TypeConverter.toBoolean(left)) return true;
+            return TypeConverter.toBoolean(node.right().accept(this));
+        }
+
         Object left = node.left().accept(this);
         Object right = node.right().accept(this);
         try {
@@ -291,16 +304,20 @@ public class ASTInterpreter implements ASTVisitor<Object> {
     public Object visit(UnaryOpNode node) {
         trace("unary " + node.operator());
         Object operand = node.operand().accept(this);
-        if (node.operator() == UnaryOpNode.Operator.NEGATE) {
-            try {
+        try {
+            if (node.operator() == UnaryOpNode.Operator.NEGATE) {
                 if (operand instanceof Double) {
                     return -TypeConverter.toDouble(operand);
                 } else {
                     return -TypeConverter.toInt(operand);
                 }
-            } catch (RuntimeException e) {
-                throw new RJScriptError(ErrorType.RUNTIME, e.getMessage(), node.line(), node.column());
+            } else if (node.operator() == UnaryOpNode.Operator.NOT) {
+                return !TypeConverter.toBoolean(operand);
             }
+        } catch (RJScriptError e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new RJScriptError(ErrorType.RUNTIME, e.getMessage(), node.line(), node.column());
         }
         throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_UNKNOWN_UNARY_OPERATOR + node.operator(), node.line(), node.column());
     }
