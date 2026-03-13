@@ -40,6 +40,7 @@ public class BinaryOperationEvaluator {
             case GREATER_EQUAL -> evaluateGreaterEqual(left, right, isFloat);
             case EQUAL -> evaluateEqual(left, right, isString, isBoolean, isFloat);
             case NOT_EQUAL -> evaluateNotEqual(left, right, isString, isBoolean, isFloat);
+            case LOGICAL_AND, LOGICAL_OR -> throw new RJScriptError(ErrorType.RUNTIME, "Logical operators should be handled with short-circuit evaluation", line, column);
         };
     }
 

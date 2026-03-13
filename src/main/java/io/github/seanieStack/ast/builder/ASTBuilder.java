@@ -294,7 +294,35 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
      */
     @Override
     public ASTNode visitExpression(RJScriptParser.ExpressionContext ctx) {
-        return visit(ctx.comparison());
+        return visit(ctx.logicalOr());
+    }
+
+    @Override
+    public ASTNode visitLogicalOr(RJScriptParser.LogicalOrContext ctx) {
+        ASTNode result = visit(ctx.logicalAnd(0));
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
+
+        for (int i = 1; i < ctx.logicalAnd().size(); i++) {
+            ASTNode right = visit(ctx.logicalAnd(i));
+            result = new BinaryOpNode(BinaryOpNode.Operator.LOGICAL_OR, result, right, line, col);
+        }
+
+        return result;
+    }
+
+    @Override
+    public ASTNode visitLogicalAnd(RJScriptParser.LogicalAndContext ctx) {
+        ASTNode result = visit(ctx.comparison(0));
+        int line = ctx.getStart().getLine();
+        int col  = ctx.getStart().getCharPositionInLine();
+
+        for (int i = 1; i < ctx.comparison().size(); i++) {
+            ASTNode right = visit(ctx.comparison(i));
+            result = new BinaryOpNode(BinaryOpNode.Operator.LOGICAL_AND, result, right, line, col);
+        }
+
+        return result;
     }
 
     /**
@@ -405,6 +433,11 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
             int col  = ctx.getStart().getCharPositionInLine();
             ASTNode operand = visit(ctx.unary());
             return new UnaryOpNode(UnaryOpNode.Operator.NEGATE, operand, line, col);
+        } else if (ctx.NOT() != null) {
+            int line = ctx.getStart().getLine();
+            int col  = ctx.getStart().getCharPositionInLine();
+            ASTNode operand = visit(ctx.unary());
+            return new UnaryOpNode(UnaryOpNode.Operator.NOT, operand, line, col);
         } else {
             return visit(ctx.primary());
         }

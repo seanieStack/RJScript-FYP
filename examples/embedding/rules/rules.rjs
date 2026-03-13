@@ -36,14 +36,10 @@ if (pressure < PRESSURE_LOW) {
     triggered = true;
 }
 
-if (temp > TEMP_HIGH) {
-    if (humidity > HUMIDITY_MAX) {
-        if (pressure < PRESSURE_LOW) {
-            alert("critical", "Dangerous conditions — heat + humidity + low pressure");
-        }
-    }
+if (temp > TEMP_HIGH && humidity > HUMIDITY_MAX && pressure < PRESSURE_LOW) {
+    alert("critical", "Dangerous conditions — heat + humidity + low pressure");
 }
 
-if (triggered == false) {
+if (!triggered) {
     log("All readings within normal range");
 }
