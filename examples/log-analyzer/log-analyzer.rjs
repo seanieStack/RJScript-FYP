@@ -22,11 +22,8 @@ let warnings = [];
 for (let i = 0; i < len(lines); i = i + 1) {
     let line = trim(lines[i]);
 
-    if (len(line) == 0) {
-        i = i + 0;
-    } else {
+    if (len(line) > 0) {
         totalLines = totalLines + 1;
-
 
         let sep = indexOf(line, "] ");
 

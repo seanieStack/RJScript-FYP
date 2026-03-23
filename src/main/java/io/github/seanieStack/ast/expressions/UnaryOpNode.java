@@ -19,7 +19,7 @@ public record UnaryOpNode(
 ) implements ASTNode {
 
     public enum Operator {
-        NEGATE
+        NEGATE, NOT
     }
 
     @Override

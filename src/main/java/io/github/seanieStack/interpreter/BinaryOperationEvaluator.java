@@ -33,12 +33,14 @@ public class BinaryOperationEvaluator {
             case SUBTRACT -> evaluateSubtraction(left, right, isFloat);
             case MULTIPLY -> evaluateMultiplication(left, right, isFloat);
             case DIVIDE -> evaluateDivision(left, right, isFloat, line, column);
+            case MODULO -> evaluateModulo(left, right, isFloat, line, column);
             case LESS_THAN -> evaluateLessThan(left, right, isFloat);
             case GREATER_THAN -> evaluateGreaterThan(left, right, isFloat);
             case LESS_EQUAL -> evaluateLessEqual(left, right, isFloat);
             case GREATER_EQUAL -> evaluateGreaterEqual(left, right, isFloat);
             case EQUAL -> evaluateEqual(left, right, isString, isBoolean, isFloat);
             case NOT_EQUAL -> evaluateNotEqual(left, right, isString, isBoolean, isFloat);
+            case LOGICAL_AND, LOGICAL_OR -> throw new RJScriptError(ErrorType.RUNTIME, "Logical operators should be handled with short-circuit evaluation", line, column);
         };
     }
 
@@ -95,6 +97,25 @@ public class BinaryOperationEvaluator {
                 throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_DIVISION_BY_ZERO, line, column);
             }
             return TypeConverter.toInt(left) / rightVal;
+        }
+    }
+
+    /**
+     * Evaluates modulo for integers and floats. Checks for division by zero.
+     */
+    private Object evaluateModulo(Object left, Object right, boolean isFloat, int line, int column) {
+        if (isFloat) {
+            double rightVal = TypeConverter.toDouble(right);
+            if (rightVal == 0.0) {
+                throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_DIVISION_BY_ZERO, line, column);
+            }
+            return TypeConverter.toDouble(left) % rightVal;
+        } else {
+            int rightVal = TypeConverter.toInt(right);
+            if (rightVal == 0) {
+                throw new RJScriptError(ErrorType.RUNTIME, ErrorMessages.ERROR_DIVISION_BY_ZERO, line, column);
+            }
+            return TypeConverter.toInt(left) % rightVal;
         }
     }
 

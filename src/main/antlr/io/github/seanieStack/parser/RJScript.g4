@@ -50,15 +50,20 @@ block : LBRACE statement* RBRACE ;
 
 expressionStatement : expression SEMICOLON ;
 
-expression : comparison ;
+expression : logicalOr ;
+
+logicalOr : logicalAnd (OR logicalAnd)* ;
+
+logicalAnd : comparison (AND comparison)* ;
 
 comparison : additive ((LT | GT | LE | GE | EQ | NEQ) additive)? ;
 
 additive : multiplicative ((PLUS | MINUS) multiplicative)*;
 
-multiplicative: unary ((MULTIPLY | DIVISION) unary)*;
+multiplicative: unary ((MULTIPLY | DIVISION | MODULO) unary)*;
 
 unary : MINUS unary
+      | NOT unary
       | primary
       ;
 
@@ -94,6 +99,9 @@ RETURN          : 'return' ;
 EQUALS          : '=' ;
 EQ              : '==' ;
 NEQ             : '!=' ;
+AND             : '&&' ;
+OR              : '||' ;
+NOT             : '!' ;
 LT              : '<' ;
 GT              : '>' ;
 LE              : '<=' ;
@@ -102,6 +110,7 @@ PLUS            : '+' ;
 MINUS           : '-' ;
 MULTIPLY        : '*' ;
 DIVISION        : '/' ;
+MODULO          : '%' ;
 LPAREN          : '(' ;
 RPAREN          : ')' ;
 LBRACE          : '{' ;
