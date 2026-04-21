@@ -13,11 +13,11 @@ public final class TypeUtils {
     public static String getTypeName(Object value) {
         return switch (value) {
             case null -> "null";
-            case Integer i -> "int";
-            case Double v -> "float";
-            case Boolean b -> "bool";
-            case String s -> "string";
-            case List<?> l -> "array";
+            case Integer ignored4 -> "int";
+            case Double ignored3 -> "float";
+            case Boolean ignored2 -> "bool";
+            case String ignored1 -> "string";
+            case List<?> ignored -> "array";
             default -> value.getClass().getSimpleName();
         };
     }
@@ -52,15 +52,6 @@ public final class TypeUtils {
     public static void requireNumeric(Object value, String functionName) {
         if (!(value instanceof Integer) && !(value instanceof Double)) {
             throw new RuntimeException(functionName + " requires a numeric argument, got " + getTypeName(value));
-        }
-    }
-
-    /**
-     * Requires a string value, throwing with context if not.
-     */
-    public static void requireString(Object value, String functionName) {
-        if (!(value instanceof String)) {
-            throw new RuntimeException(functionName + " requires a string argument, got " + getTypeName(value));
         }
     }
 

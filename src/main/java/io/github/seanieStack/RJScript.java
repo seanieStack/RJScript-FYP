@@ -9,7 +9,6 @@ import io.github.seanieStack.environments.Environment;
 import io.github.seanieStack.errors.ErrorReporter;
 import io.github.seanieStack.errors.RJScriptError;
 import io.github.seanieStack.interpreter.ASTInterpreter;
-import io.github.seanieStack.interpreter.Callable;
 import io.github.seanieStack.interpreter.Function;
 import io.github.seanieStack.parser.RJScriptLexer;
 import io.github.seanieStack.parser.RJScriptParser;
@@ -23,7 +22,6 @@ import java.util.logging.SimpleFormatter;
 
 /**
  * Main entry point for the RJScript interpreter.
- *
  * Debug flags (can be combined):
  *   --ast  / -a   Print the AST before execution
  *   --tokens / -t  Print the lexer token stream

@@ -27,7 +27,7 @@ java -jar build/libs/FYP-RJScript-0.0.1.jar <script>
 
 ```
 
-In the case that you get an build error when running `./gradle build` 
+In the case that you get a build error when running `./gradle build` 
 you need to set the path to the Java 21 JDK inside `gradle.properties`
 
 ```bash

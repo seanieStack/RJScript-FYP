@@ -95,7 +95,7 @@ sortByTotal(categories, categoryTotals, transactionCounts);
 let avgPerTransaction = totalSpent / float(rowCount);
 let avgPerDay = totalSpent / 31.0;
 
-print("Expense Report — March 2025");
+print("Expense Report - March 2025");
 print("Transactions : " + str(rowCount));
 print("Total spent  : " + formatAmount(totalSpent));
 print("Avg per day  : " + formatAmount(avgPerDay));
@@ -112,9 +112,9 @@ for (let i = 0; i < len(categories); i = i + 1) {
 
 print("");
 print("Biggest single expense:");
-print("  " + formatAmount(biggestAmount) + " — " + biggestDesc + " [" + biggestCat + "] on " + biggestDate);
+print("  " + formatAmount(biggestAmount) + " - " + biggestDesc + " [" + biggestCat + "] on " + biggestDate);
 
-let report = "Expense Report — March 2025\n";
+let report = "Expense Report - March 2025\n";
 report = report + "============================\n";
 report = report + "Transactions : " + str(rowCount) + "\n";
 report = report + "Total spent  : " + formatAmount(totalSpent) + "\n";
@@ -124,11 +124,11 @@ report = report + "\nBy category:\n";
 
 for (let i = 0; i < len(categories); i = i + 1) {
     let pct = round(categoryTotals[i] / totalSpent * 100.0);
-    report = report + "  " + categories[i] + " — " + formatAmount(categoryTotals[i]) + " (" + str(pct) + "%)\n";
+    report = report + "  " + categories[i] + " - " + formatAmount(categoryTotals[i]) + " (" + str(pct) + "%)\n";
 }
 
 report = report + "\nBiggest expense:\n";
-report = report + "  " + formatAmount(biggestAmount) + " — " + biggestDesc + " [" + biggestCat + "] on " + biggestDate + "\n";
+report = report + "  " + formatAmount(biggestAmount) + " - " + biggestDesc + " [" + biggestCat + "] on " + biggestDate + "\n";
 
 let outPath = "examples/expense-tracker/report.txt";
 writeFile(outPath, report);

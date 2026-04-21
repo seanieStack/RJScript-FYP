@@ -44,7 +44,4 @@ public final class ErrorMessages {
 
     // Runtime errors - environment
     public static final String ERROR_VARIABLE_NOT_FOUND = "Variable %s not found";
-
-    // Error prefixes
-    public static final String ERROR_PREFIX = "Error: ";
 }

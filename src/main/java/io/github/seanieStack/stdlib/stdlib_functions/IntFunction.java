@@ -16,7 +16,7 @@ public class IntFunction implements NativeFunction {
         Object value = arguments.getFirst();
 
         switch (value) {
-            case Integer i -> {
+            case Integer ignored -> {
                 return value;
             }
             case Double d -> {

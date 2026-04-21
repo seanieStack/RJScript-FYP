@@ -2,7 +2,6 @@ package io.github.seanieStack.ast.core;
 
 import io.github.seanieStack.ast.expressions.*;
 import io.github.seanieStack.ast.statements.*;
-import io.github.seanieStack.ast.statements.IndexedAssignmentNode;
 import io.github.seanieStack.ast.structural.BlockNode;
 import io.github.seanieStack.ast.structural.FunctionDeclarationNode;
 import io.github.seanieStack.ast.structural.ProgramNode;

@@ -85,7 +85,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
 
     /**
      * Visits an indexed assignment context and builds an IndexedAssignmentNode.
-     * Handles multi-dimensional array assignments like arr[0][1] = value.
+     * Handles multidimensional array assignments like arr[0][1] = value.
      *
      * @param ctx the indexed assignment context from the parse tree
      * @return an IndexedAssignmentNode containing the identifier, indices, and value
@@ -523,7 +523,7 @@ public class ASTBuilder extends RJScriptBaseVisitor<ASTNode> {
 
     /**
      * Visits an index access context and builds an IndexAccessNode.
-     * Handles multi-dimensional access like arr[0][1].
+     * Handles multidimensional access like arr[0][1].
      *
      * @param ctx the index access context from the parse tree
      * @return an IndexAccessNode containing the identifier and all index expressions

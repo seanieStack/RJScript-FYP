@@ -295,7 +295,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
 
     /**
      * Visits a unary operation node, evaluates the operand, and applies the
-     * unary operator. Currently supports negation.
+     * unary operator. Currently, supports negation.
      *
      * @param node the unary operation node containing the operator and operand
      * @return the result of applying the unary operator
@@ -499,7 +499,7 @@ public class ASTInterpreter implements ASTVisitor<Object> {
      * Resolves a potentially negative index to an actual array index.
      * Negative indices count from the end: -1 is the last element, -2 is second-to-last, etc.
      *
-     * @param index the index (may be negative)
+     * @param index the index (maybe negative)
      * @param length the length of the array
      * @return the resolved non-negative index
      */

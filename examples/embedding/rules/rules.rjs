@@ -37,7 +37,7 @@ if (pressure < PRESSURE_LOW) {
 }
 
 if (temp > TEMP_HIGH && humidity > HUMIDITY_MAX && pressure < PRESSURE_LOW) {
-    alert("critical", "Dangerous conditions — heat + humidity + low pressure");
+    alert("critical", "Dangerous conditions - heat + humidity + low pressure");
 }
 
 if (!triggered) {

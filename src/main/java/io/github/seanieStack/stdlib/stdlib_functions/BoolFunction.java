@@ -18,7 +18,7 @@ public class BoolFunction implements NativeFunction {
 
         return switch (value) {
             case null -> false;
-            case Boolean b -> value;
+            case Boolean ignored -> value;
             case Integer i -> i != 0;
             case Double d -> d != 0.0;
             case String s -> !s.isEmpty();
