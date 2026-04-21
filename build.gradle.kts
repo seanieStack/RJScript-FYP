@@ -13,9 +13,16 @@ repositories {
 
 dependencies {
     antlr("org.antlr:antlr4:4.13.2")
+    implementation("org.antlr:antlr4-runtime:4.13.2")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+}
+
+configurations {
+    runtimeClasspath {
+        exclude(group = "org.antlr", module = "antlr4")
+    }
 }
 
 tasks.test {

@@ -11,11 +11,37 @@ A simple scripting language built with Java and ANTLR4. RJScript compiles source
 ## Running
 
 ```bash
-# Run a script
-java -jar build/libs/FYP-RJScript-0.0.1.jar script.rjs
+sudo dnf install -y java-21-openjdk-devel #fedora
+sudo apt install -y openjdk-21-jdk #ubuntu/debian
+sudo pacman -S jdk21-openjdk #arch
 
-# Or use the run script
-./run.sh script.rjs
+git clone https://github.com/seanieStack/RJScript-FYP
+
+cd RJScript
+
+./run.sh <script>
+# or 
+
+./gradle build
+java -jar build/libs/FYP-RJScript-0.0.1.jar <script>
+
+```
+
+In the case that you get an build error when running `./gradle build` 
+you need to set the path to the Java 21 JDK inside `gradle.properties`
+
+```bash
+ls /usr/lib/jvm/ | grep java-21
+```
+
+which in ubuntu for example will say `java-21-openjdk-amd64`
+
+this should be added to the `gradle.properties` files
+
+```
+echo "org.gradle.java.home=/path/to/your/java-21" >> gradle.properties
+./gradlew --stop
+./gradlew jar
 ```
 
 ### Debug Flags
